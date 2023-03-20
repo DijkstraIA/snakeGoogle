@@ -1,11 +1,17 @@
+TODO
++Verificar si ya perdio??? TODO 
++Reducir la resolucion de la imagen a una estandar
++Definir screen en terminos de porcentaje de la pantalla.
+
+
 Tener encuenta: 
 Resolucion del navegador 100%
-
+Screen con mss
 
 Cuando esta jugando
 Screenshop al tablero 
 
-Verificar si ya perdio??? TODO 
+
 
 
 Snake mide 4 casillas
@@ -17,3 +23,10 @@ Filas = 15
 Estado inicial
 Cabeza (8,5) Cola (8,2)
 Manzana (8,13)
+
+//Liberias
+pip install pyautogui
+pip install pillow
+pip install mss
+pip install opencv-python
+pip install keyboard
