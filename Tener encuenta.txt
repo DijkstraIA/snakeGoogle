@@ -1,0 +1,19 @@
+Tener encuenta: 
+Resolucion del navegador 100%
+
+
+Cuando esta jugando
+Screenshop al tablero 
+
+Verificar si ya perdio??? TODO 
+
+
+Snake mide 4 casillas
+
+Tablero
+Columnas = 17
+Filas = 15
+
+Estado inicial
+Cabeza (8,5) Cola (8,2)
+Manzana (8,13)
