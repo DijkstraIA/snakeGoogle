@@ -37,31 +37,46 @@ dim_apple = {
 apple =  np.array(sct.grab(monitor=dim_apple))#cv2.imread('apple.jpg')
 #apple = cv2.cvtColor(apple, cv2.COLOR_RGB2BGR)
 
+eps = 5
+disSquard = 40
+iniX = 12
+iniY = 10
+
 fps_time = time()
 while True:
     board =  sct.grab(monitor=dim_board)
     board = np.array(board)
     #board = cv2.cvtColor(board, cv2.COLOR_RGB2BGR)  # Convert RGB to BGR color
     
-    #small = cv2.resize(board, (0, 0), fx=0.5, fy=0.5)
-    #cv2.imshow("Computer Vision", small)
+    cv2.imshow("Computer object", apple)
     
 
     #Procesar
     result = cv2.matchTemplate(board, apple, cv2.TM_CCOEFF_NORMED)
     cv2.imshow("Computer result", result)
-    #_, max_val, _, max_loc = cv2.minMaxLoc(result)
+    _, max_val, _, max_loc = cv2.minMaxLoc(result)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-
-    if max_val > .85:
+    if max_val > .75:
         print(f"Max Val: {max_val} Max Loc: {max_loc}")
+        x1 = np.ceil(((max_loc[0]-eps)-iniX)/disSquard + 1)
+        x2 = np.floor(((max_loc[0]+eps)-iniX)/disSquard + 1)
+        y1 = np.ceil(((max_loc[1]-eps)-iniY)/disSquard + 1)
+        y2 = np.floor(((max_loc[1]+eps)-iniY)/disSquard + 1)
+        if x1 == x2 and y1 == y2:
+            print([int(x1),int(y1)])
         cv2.rectangle(board, max_loc, (max_loc[0] + w, max_loc[1] + h), (0,255,255), 2)
+    
+    # threshold = .75
+    # yloc, xloc = np.where(result >= threshold)
+    # print(len(xloc))
+    # for(x,y) in zip(xloc, yloc):
+    #     cv2.rectangle(board, (x,y), (x + w, y + h), (0,255,255), 2)
 
     small = cv2.resize(board, (0, 0), fx=0.5, fy=0.5)
     cv2.imshow("Computer Vision", small)
     cv2.waitKey(1)
     #pyautogui.press("")
-    #sleep(.10) # Comentar para mas fps
+    sleep(.10) # Comentar para mas fps
     if keyboard.is_pressed(end):
         break
 
