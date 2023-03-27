@@ -1,4 +1,8 @@
+Hacer primero todo con el caso ideal.
+
+
 TODO
++Revisar calculo de coordenadas
 +Verificar si ya perdio??? TODO 
 +Reducir la resolucion de la imagen a una estandar
 +Definir screen en terminos de porcentaje de la pantalla.
@@ -11,14 +15,11 @@ Screen con mss
 Cuando esta jugando
 Screenshop al tablero 
 
-
-
-
 Snake mide 4 casillas
 
 Tablero
-Columnas = 17
 Filas = 15
+Columnas = 17
 
 Estado inicial
 Cabeza (8,5) Cola (8,2)
