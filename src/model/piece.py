@@ -9,6 +9,7 @@ class Point:
         self.h = 0
         self.neighbors = []
         self.camefrom = []
+        self.obstrucle = False
         init()
 
     def show(self, color, screen, hr, wr):

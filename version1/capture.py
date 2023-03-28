@@ -78,7 +78,7 @@ while True:
     yloc, xloc = np.where(result >= threshold)
     print(len(xloc))
     for(x,y) in zip(xloc, yloc):
-        cv2.rectangle(board, (x,y), (x + w, y + h), (0,255,255), 2)
+        cv2.rectangle(board, (x,y), (x + wapple, y + happle), (0,255,255), 2)
 
     small = cv2.resize(board, (0, 0), fx=0.5, fy=0.5)
     cv2.imshow("Computer Vision", small)
@@ -90,3 +90,9 @@ while True:
 
     print('FPS: {}'.format(1 / (time() - fps_time)))
     fps_time = time()
+
+
+# import pyautogui
+
+# while True:
+#     print(pyautogui.position())

@@ -5,11 +5,19 @@ import os
 
 from agent.algorithm import asterisk
 from model.piece import Point
-from screen.capture import capture
+from screen.capture import capture, monitorObj
+
+# [board, apple]
+left = [35,527]
+top = [212,505]
+width = [680,20]
+height = [610,20]
 
 class IA:
     def __init__(self):
-        self.capture = capture()
+        board = monitorObj(left[0], top[0], width[0], height[0])
+        apple = monitorObj(left[1], top[1], width[1], height[1])
+        self.captureApple = capture(board,apple)
         self.asterisk = asterisk()
         self.lenSanke = 4
         self.score = 0
@@ -18,9 +26,11 @@ class IA:
         self.grid = [[Point(i, j) for j in range(self.cols)] for i in range(self.rows )]
         self.createGraph()
         self.food = self.grid[8-1][13-1]
-        headSnake = self.grid[8-1][5-1]
+        headSnake = self.grid[8][5]
         # headSnake = self.searchHead()
         self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) #TODO Capture head snake
+        head = self.snake[-1]        
+        print([head.x, head.y])
         self.searchApple()
         init()
 
@@ -36,13 +46,16 @@ class IA:
                 self.grid[i][j].add_neighbors(self.grid, self.rows, self.cols)
 
     def play(self):
+        cnt = 0
         try:
             direction = 1
             self.searchApple()
             head = self.snake[-1]
             while 1:
+                cnt+=1
                 if head.x == head.x and head.y == head.y and self.score <= 10:
-                    dir_array = self.asterisk.getpath(self.food, self.snake)
+                    print([cnt, self.score, direction, head.x, head.y, self.food.x, self.food.y ])
+                    dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols)
                     direction = dir_array.pop(-1)
                     head = self.move(head, direction)
                     if head.x == self.food.x and head.y == self.food.y:
@@ -76,7 +89,7 @@ class IA:
 
     def searchApple(self):
         while 1:
-            X,Y = self.capture.scan(self.food.x,self.food.y)
+            X,Y = self.captureApple.scan(self.food.x,self.food.y)
             self.food = self.grid[X-1][Y-1]
             if not (self.food in self.snake):
                 break

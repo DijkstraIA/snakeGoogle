@@ -4,7 +4,7 @@ class asterisk:
     def __init__(self):
         self.ini = 1
 
-    def getpath(food1, snake1, grid, rows, cols):
+    def getpath(self, food1, snake1, grid, rows, cols):
         food1.camefrom = []
         for s in snake1:
             s.camefrom = []
