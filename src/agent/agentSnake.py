@@ -1,4 +1,5 @@
 from pygame import display, time, init
+from time import sleep
 import pyautogui
 import keyboard
 import os
@@ -29,8 +30,6 @@ class IA:
         headSnake = self.grid[8][5]
         # headSnake = self.searchHead()
         self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) #TODO Capture head snake
-        head = self.snake[-1]        
-        print([head.x, head.y])
         self.searchApple()
         init()
 
@@ -47,18 +46,27 @@ class IA:
 
     def play(self):
         cnt = 0
+        # clock = time.Clock()
+        print([self.score, cnt])
         try:
             direction = 1
-            self.searchApple()
+            self.searchApple() ##Sensores
             head = self.snake[-1]
+            path = []
             while 1:
                 cnt+=1
                 if head.x == head.x and head.y == head.y and self.score <= 10:
-                    print([cnt, self.score, direction, head.x, head.y, self.food.x, self.food.y ])
-                    dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols)
+                    # print([cnt, self.score, direction, head.x, head.y, self.food.x, self.food.y ])
+                    dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols) ##Funcion interna de calculo
                     direction = dir_array.pop(-1)
-                    head = self.move(head, direction)
+                    head, path = self.move(head, direction, path)
                     if head.x == self.food.x and head.y == self.food.y:
+                        print(path)
+                        for dir in path:
+                            # clock.tick(11)
+                            self.moveSnake(dir) ##Actuadores que generan acciones
+                            # sleep(.04)
+                        path = []
                         self.score += 1
                         self.searchApple()
                     else:
@@ -72,24 +80,27 @@ class IA:
         except Exception as e:
             print(f"Error: {e}")
 
-    def move(self, head, direction):
+    def move(self, head, direction, path):
         if direction == 0:    # down
-            pyautogui.press("right")
+            path.append("right")
             self.snake.append(self.grid[head.x][head.y + 1])
         elif direction == 1:  # right
-            pyautogui.press("down")
+            path.append("down")
             self.snake.append(self.grid[head.x + 1][head.y])
         elif direction == 2:  # up
-            pyautogui.press("left")
+            path.append("left")
             self.snake.append(self.grid[head.x][head.y - 1])
         elif direction == 3:  # left
-            pyautogui.press("up")
+            path.append("up")
             self.snake.append(self.grid[head.x - 1][head.y])
-        return self.snake[-1]
+        return self.snake[-1], path
+    
+    def moveSnake(self, dir):
+        pyautogui.press(dir)
 
     def searchApple(self):
         while 1:
-            X,Y = self.captureApple.scan(self.food.x,self.food.y)
+            X,Y = self.captureApple.scan(self.food.x,self.food.y) #Sensor con el percibe la posicion de la manzana
             self.food = self.grid[X-1][Y-1]
             if not (self.food in self.snake):
                 break
