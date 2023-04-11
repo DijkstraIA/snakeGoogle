@@ -10,15 +10,20 @@ from screen.capture import capture, monitorObj
 
 # [board, apple]
 left = [35,527]
-top = [212,505]
+top = [217,505]
 width = [680,20]
-height = [610,20]
+height = [600,20]
+
+# Tamaño de la casilla en pixeles
+wi = 40
+hi = 40
 
 class IA:
     def __init__(self):
         board = monitorObj(left[0], top[0], width[0], height[0])
         apple = monitorObj(left[1], top[1], width[1], height[1])
-        self.captureApple = capture(board,apple)
+        self.captureApple = capture(board, apple, wi, hi)
+        self.captureHead = capture(board, apple, wi, hi)
         self.asterisk = asterisk()
         self.lenSanke = 4
         self.score = 0
@@ -44,37 +49,53 @@ class IA:
             for j in range(self.cols):
                 self.grid[i][j].add_neighbors(self.grid, self.rows, self.cols)
 
+    def hilos(self):
+        import threading
+        while True:
+            # Crear los hilos
+            t1 = threading.Thread(target=self.searchHead)
+            t2 = threading.Thread(target=self.play)
+
+            # Iniciar los hilos
+            t1.start()
+            t2.start()
+
+            # Esperar a que terminen los hilos
+            t1.join()
+            t2.join()
+            if keyboard.is_pressed("q"):
+                break
+
     def play(self):
         cnt = 0
         # clock = time.Clock()
-        print([self.score, cnt])
+        # print([self.score, cnt])
         try:
+            # global headR
             direction = 1
             self.searchApple() ##Sensores
             head = self.snake[-1]
+            head2 = self.snake[-2]
+            headR = self.searchHead()
+            # print([head.x, head.y])
             path = []
             while 1:
                 cnt+=1
-                if head.x == head.x and head.y == head.y and self.score <= 10:
+                print([head2.x, head2.y, headR.x, headR.y, cnt])
+                if head2.x == headR.x and head2.y == headR.y and self.score <= 10:
                     # print([cnt, self.score, direction, head.x, head.y, self.food.x, self.food.y ])
                     dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols) ##Funcion interna de calculo
                     direction = dir_array.pop(-1)
-                    head, path = self.move(head, direction, path)
+                    head, head2, path = self.move(head, direction, path)
+                    dir = path.pop(0)
+                    self.moveSnake(dir)
                     if head.x == self.food.x and head.y == self.food.y:
-                        print(path)
-                        for dir in path:
-                            # clock.tick(11)
-                            self.moveSnake(dir) ##Actuadores que generan acciones
-                            # sleep(.04)
-                        path = []
                         self.score += 1
                         self.searchApple()
                     else:
                         self.snake.pop(0)
                 else:
-                    #TODO: Capture head snake
-                    print("Game Over")
-                    break
+                    headR = self.searchHead()
                 if keyboard.is_pressed("q"):
                     break
         except Exception as e:
@@ -93,7 +114,7 @@ class IA:
         elif direction == 3:  # left
             path.append("up")
             self.snake.append(self.grid[head.x - 1][head.y])
-        return self.snake[-1], path
+        return self.snake[-1],self.snake[-2], path
     
     def moveSnake(self, dir):
         pyautogui.press(dir)
@@ -104,6 +125,12 @@ class IA:
             self.food = self.grid[X-1][Y-1]
             if not (self.food in self.snake):
                 break
+    
+    def searchHead(self):
+        # global headR
+        I, J = self.captureHead.scanWhite()
+        # headR = self.grid[I-1][J-1]
+        return self.grid[I-1][J-1]
     
     def printBoard(self):
         BLACK = (0, 0, 0)

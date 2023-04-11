@@ -13,7 +13,7 @@ class monitorObj:
         self.height = height
 
 class capture:
-    def __init__(self, board, objectSearch, per=.75):
+    def __init__(self, board, objectSearch, wi, hi, per=.75):
 
         #Dimensiones del tablero
         self.dim_board = {
@@ -22,6 +22,9 @@ class capture:
                 'width': board.width, #680
                 'height': board.height #610
         }
+        #Dimensiones de una casilla
+        self.wi = wi
+        self.hi = hi
 
         #Dimensiones de la manzana
         self.wobject = objectSearch.width #20
@@ -59,6 +62,36 @@ class capture:
             Y = np.round(((max_loc[0])-self.iniX)/self.disSquard + 1)
             X = np.round(((max_loc[1])-self.iniY)/self.disSquard + 1)
         return int(X),int(Y)
+    
+    def scanWhite(self):
+        I = -1
+        J = -1
+        while True:
+            img =  np.array(sct.grab(monitor=self.dim_board))
+            
+            # Convierte la imagen a escala de grises
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            # Aplica una umbralización para detectar los píxeles blancos
+            _, thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
+            
+            whilte_point = cv2.findNonZero(thresh)
+
+            if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
+                x = whilte_point[0][0][0]
+                y = whilte_point[0][0][1]
+                
+                I = np.floor(y/self.wi) + 1
+                J = np.floor(x/self.hi) + 1
+                # print([x,y])
+                # print(["CON: ",I,J])s
+                # cv2.circle(img, (x,y), 2, (255,0,255),-1)
+                # # Muestra la imagen resultante
+                # cv2.imshow("Imagen con contornos", img)
+                # cv2.waitKey(1)
+            if I != -1 and J != -1:
+                break
+        return int(I),int(J)
     
     def mousePosition(self):
         cnt = 0

@@ -3,12 +3,13 @@ import mss
 import numpy as np
 import pyautogui
 import keyboard
+from pygame import time
 
 dim_board = {
         'left': 35,
-        'top': 212,
+        'top': 217,
         'width': 680,
-        'height': 610
+        'height': 600
     }
 
 # Carga una imagen de muestra del juego Snake Arcade
@@ -24,6 +25,14 @@ print("Press " + ini +" to start playing.")
 print("Once started press " +  end + " to quit.")
 keyboard.wait(ini)
 
+eps = 3
+disSquard = 40
+iniX = 12
+iniY = 10
+wi = 40
+hi = 40
+
+clock = time.Clock()
 while True:
 
     sct = mss.mss()
@@ -39,9 +48,29 @@ while True:
 
     # Encuentra los contornos de los objetos en la imagen
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    
+    whilte_point = cv2.findNonZero(thresh)
+
+    if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
+        # print(whilte_point[0])
+        # print(type(whilte_point[0]))
+        # clock.tick(6)
+
+        x = whilte_point[0][0][0]
+        y = whilte_point[0][0][1]
+        print([x,y])
+        
+        # Y = np.round(((x)-iniX)/disSquard + 1)
+        # X = np.round(((y)-iniY)/disSquard + 1)
+        # I = np.round(y/wi) + 1
+        # J = np.sround(x/hi) + 1
+        I = np.floor(y/wi) #+ 1
+        J = np.floor(x/hi) # + 1
+        print(["CON: ",I,J])
+        cv2.circle(img, (x,y), 2, (255,0,255),-1)
 
     # Dibuja los contornos detectados en la imagen original
-    cv2.drawContours(img, contours, -1, (0, 0, 255), 2)
+    # cv2.drawContours(img, whilte_point, -1, (0, 0, 255), 2)
 
     # ## Codigo para capturar los pixeles blancos
     # # Crear una máscara que contenga solo los píxeles blancos
@@ -57,7 +86,7 @@ while True:
     # # Mostrar las coordenadas de los píxeles blancos en la imagen
     # print(white_pixels)
     # ## ------------------------------
-
+    
     # Muestra la imagen resultante
     cv2.imshow("Imagen con contornos", img)
     cv2.waitKey(1)
