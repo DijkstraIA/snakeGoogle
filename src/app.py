@@ -3,6 +3,7 @@ from agent.agentSnake import IA
 agent = IA()
 
 def main():
+    # agent.go()
     agent.play()
 
 if __name__ == "__main__":

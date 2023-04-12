@@ -5,6 +5,12 @@ import pyautogui
 import keyboard
 from pygame import time
 
+# dim_board = {
+#         'left': 35,
+#         'top': 217,
+#         'width': 680,
+#         'height': 600
+#     }
 dim_board = {
         'left': 35,
         'top': 217,
@@ -16,7 +22,7 @@ dim_board = {
 # board =  sct.grab(monitor=dim_board)
 # board = np.array(board)
 path = "C:/Users/sebas/OneDrive/Escritorio/Inteligentes/snakeGoogle/version1"
-dir = f"{path}/snake_arcade.png"
+dir = f"{path}/apple.png"
 pyautogui.PAUSE = 0
 
 ini = "s"
@@ -38,25 +44,99 @@ while True:
     sct = mss.mss()
     img =  np.array(sct.grab(monitor=dim_board))
 
-    # img = cv2.imread(board)
+    # img = cv2.imread(dir)
 
     # Convierte la imagen a escala de grises
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Aplica una umbralización para detectar los píxeles blancos
-    ret, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+    # # Tomo el blanco
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # Encuentra los contornos de los objetos en la imagen
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # lower_red = np.array([0, 0, 200])
+    # upper_red = np.array([180, 30, 255])
+    # mask = cv2.inRange(hsv, lower_red, upper_red)
+    # res = cv2.bitwise_and(img, img, mask=mask)
+    # cv2.imshow('frame', img)
+    # cv2.imshow('mask', mask)
+    # cv2.imshow('res', res)
+    # cv2.waitKey(1)
+    # # cv2.destroyAllWindows()
+    # if keyboard.is_pressed(end):
+    #     break
+
+    # # Tomo el azul
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # # lower_red = np.array([100, 100, 100])
+    # # upper_red = np.array([140, 255, 255])
+    # lower_red = np.array([112, 172, 244])
+    # upper_red = np.array([140, 255, 255])
+    # mask = cv2.inRange(hsv, lower_red, upper_red)
+    # res = cv2.bitwise_and(img, img, mask=mask)
+    # # cv2.imshow('frame', img)
+    # gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    # mx = [0,0,0]
+    # mn = [255,255,255]
+    # for i in range(0, len(hsv)):
+    #     for j in range(0, len(hsv[0])):
+    #         if hsv[i][j][0] > mx[0] and hsv[i][j][1] > mx[1] and hsv[i][j][2] > mx[2]:
+    #             mx = hsv[i][j]
+    #         if hsv[i][j][0] <= mn[0] and hsv[i][j][1] <= mn[1] and hsv[i][j][2] <= mn[2]:
+    #             mn = hsv[i][j]
+    # print(mn)
+    # print(mx)
+    # break
+    # cv2.imshow('mask', mask)
+    # # cv2.imshow('res', res)
+    # cv2.waitKey(1)
+    # # cv2.destroyAllWindows()
+    # if keyboard.is_pressed(end):
+    #     break
+
+    #Toma el rojo
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    lower_red = np.array([0, 100, 100])
+    upper_red = np.array([10, 255, 255])
+    # lower_red = np.array([40, 166, 209])
+    # upper_red = np.array([10, 255, 255])
+    mask = cv2.inRange(hsv, lower_red, upper_red)
+    res = cv2.bitwise_and(img, img, mask=mask)
+    cv2.imshow('frame', img)
+    cv2.imshow('mask', mask)
+    cv2.imshow('res', res)
+    cv2.waitKey(1)
+    # cv2.destroyAllWindows()
+    # mx = [0,0,0]
+    # mn = [255,255,255]
+    # for i in range(0, len(hsv)):
+    #     for j in range(0, len(hsv[0])):
+    #         if hsv[i][j][0] > mx[0] and hsv[i][j][1] > mx[1] and hsv[i][j][2] > mx[2]:
+    #             mx = hsv[i][j]
+    #         if hsv[i][j][0] <= mn[0] and hsv[i][j][1] <= mn[1] and hsv[i][j][2] <= mn[2]:
+    #             mn = hsv[i][j]
+    # print(mn)
+    # print(mx)
+    # break
+    if keyboard.is_pressed(end):
+        break
+
+    # # Aplica una umbralización para detectar los píxeles blancos
+    # ret, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+    # ret, thresh = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
+
+    # # Encuentra los contornos de los objetos en la imagen
+    # contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
-    whilte_point = cv2.findNonZero(thresh)
+    whilte_point = cv2.findNonZero(mask)
 
     if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
+    # if True:
         # print(whilte_point[0])
         # print(type(whilte_point[0]))
         # clock.tick(6)
-        print(len(whilte_point))
-        ind = int(len(whilte_point)//2)
+        # print(len(whilte_point))
+        ind = int(len(whilte_point)//3)
         x = whilte_point[ind][0][0]
         y = whilte_point[ind][0][1]
         print([x,y])
@@ -65,34 +145,34 @@ while True:
         # X = np.round(((y)-iniY)/disSquard + 1)
         # I = np.round(y/wi) + 1
         # J = np.sround(x/hi) + 1
-        I = np.floor(y/wi) #+ 1
-        J = np.floor(x/hi) # + 1
+        I = np.floor(y/wi) + 1
+        J = np.floor(x/hi) + 1
         print(["CON: ",I,J])
         cv2.circle(img, (x,y), 2, (255,0,255),-1)
 
-    # Dibuja los contornos detectados en la imagen original
-    # cv2.drawContours(img, whilte_point, -1, (0, 0, 255), 2)
+    # # Dibuja los contornos detectados en la imagen original
+    # # cv2.drawContours(img, whilte_point, -1, (0, 0, 255), 2)
 
-    # ## Codigo para capturar los pixeles blancos
-    # # Crear una máscara que contenga solo los píxeles blancos
-    # lower_white = np.array([200, 200, 200])
-    # upper_white = np.array([255, 255, 255])
-    # print(len(lower_white))
-    # print(len(upper_white))
-    # mask = cv2.inRange(img, lower_white, upper_white)
+    # # ## Codigo para capturar los pixeles blancos
+    # # # Crear una máscara que contenga solo los píxeles blancos
+    # # lower_white = np.array([200, 200, 200])
+    # # upper_white = np.array([255, 255, 255])
+    # # print(len(lower_white))
+    # # print(len(upper_white))
+    # # mask = cv2.inRange(img, lower_white, upper_white)
 
-    # # Encontrar las coordenadas de los píxeles no cero en la máscara
-    # white_pixels = cv2.findNonZero(mask)
+    # # # Encontrar las coordenadas de los píxeles no cero en la máscara
+    # # white_pixels = cv2.findNonZero(mask)
 
-    # # Mostrar las coordenadas de los píxeles blancos en la imagen
-    # print(white_pixels)
-    # ## ------------------------------
+    # # # Mostrar las coordenadas de los píxeles blancos en la imagen
+    # # print(white_pixels)
+    # # ## ------------------------------
     
     # Muestra la imagen resultante
     cv2.imshow("Imagen con contornos", img)
     cv2.waitKey(1)
-    if keyboard.is_pressed(end):
-        break
+    # if keyboard.is_pressed(end):
+    #     break
     # cv2.destroyAllWindows()
 
 # # Crea un objeto ORB
