@@ -4,8 +4,8 @@ import pyautogui
 import keyboard
 import os
 
-from agent.algorithm import asterisk
-from model.piece import Point
+from agent.algorithm import algorithms
+from model.piece import node
 from screen.capture import capture, monitorObj
 
 # [board, apple]
@@ -21,27 +21,48 @@ hi = 40
 #Limite de desincronizacion
 lim = 2
 
+#Variables auxiliares
+dx = [0, 1, 0, -1]
+dy = [1, 0, -1, 0]
+dword = ['right', 'down', 'left', 'up']
+
 class IA:
     def __init__(self):
+        # Variables de captura de pantalla
         board = monitorObj(left[0], top[0], width[0], height[0])
         self.captureApple = capture(board, wi, hi)
         self.captureHead = capture(board, wi, hi)
-        self.asterisk = asterisk()
-        self.lenSanke = 4
+
+        # Variables de juego
         self.score = 0
         self.rows = 15
         self.cols = 17
-        self.grid = [[Point(i, j) for j in range(self.cols)]
+        
+        # Creacion de la reticula
+        self.grid = [[node(i, j) for j in range(self.cols)]
                      for i in range(self.rows)]
+
+        # Creacion del grafo
         self.createGraph()
-        self.food = self.grid[8-1][13-1]
+
+        # Creacion de la serpiente
+        self.lenSanke = 4
         headSnake = self.grid[8][5]
-        # headSnake = self.searchHead()
-        self.snake = self.createSnake(
-            headSnake.x, headSnake.y, self.lenSanke)  # TODO Capture head snake
+        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
+
+        # Posicion inicial de la manzana
+        self.food = self.grid[8-1][13-1]
         self.searchApple()
-        self.headR = self.searchHead()
+
+        # Instancia del algoritmo
+        self.calculate = algorithms()
+        
         init()
+
+    def createGraph(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.grid[i][j].add_neighbors(self.grid, self.rows, self.cols)
 
     def createSnake(self, iniI, iniJ, lenSanke):
         snake = []
@@ -49,46 +70,44 @@ class IA:
             snake.append(self.grid[iniI-1][iniJ-1-k])
         return snake
 
-    def createGraph(self):
-        for i in range(self.rows):
-            for j in range(self.cols):
-                self.grid[i][j].add_neighbors(self.grid, self.rows, self.cols)
-
     def play(self):
-        itr = 0
         # clock = time.Clock()
         sleep(1)
+        itr = 0
         try:
             path = []
             direction = 1
             head = self.snake[-1]
             headV = self.snake[-1]
-            self.searchApple()  ## Sensores
-            self.searchHead()  ## Sensores
             while 1:
                 # clock.tick(1)
                 itr += 1
                 self.searchHead()  ## Sensores
+
+                # Comprobacion de desincronizacion
                 if abs(headV.x - self.headR.x) >= lim or abs(headV.y - self.headR.y) >= lim:
                     print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
                     print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
-                    print(
-                        f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
+                    print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
                     break
-
+                
+                # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
-                    # print(["==","v: ",headV.x, headV.y, "R: ", self.headR.x, self.headR.y, itr])
-                    dir_array = self.asterisk.getpath(
-                        self.food, self.snake, self.grid, self.rows, self.cols)  ## Funcion interna de calculo
+                    
+                    dir_array = self.calculate.bfs(self.food, self.snake, self.grid, self.rows, self.cols)
+                    # dir_array = self.calculate.getpath(self.food, self.snake, self.grid, self.rows, self.cols)  ## Funcion interna de calculo
                     direction = dir_array.pop(-1)
                     head, headV, path = self.move(head, direction, path)
                     dir = path.pop(0)
+                    
                     self.moveSnake(dir)  ## Actuadores
+                    
                     if head.x == self.food.x and head.y == self.food.y:
                         self.score += 1
                         self.searchApple()  ## Sensores
                     else:
                         self.snake.pop(0)
+
                 # self.printBoard() ## Funcion interna de impresion
                 if keyboard.is_pressed("q"):
                     break
@@ -96,18 +115,8 @@ class IA:
             print(f"Error: {e}")
 
     def move(self, head, direction, path):
-        if direction == 0:    # down
-            path.append("right")
-            self.snake.append(self.grid[head.x][head.y + 1])
-        elif direction == 1:  # right
-            path.append("down")
-            self.snake.append(self.grid[head.x + 1][head.y])
-        elif direction == 2:  # up
-            path.append("left")
-            self.snake.append(self.grid[head.x][head.y - 1])
-        elif direction == 3:  # left
-            path.append("up")
-            self.snake.append(self.grid[head.x - 1][head.y])
+        path.append(dword[direction])
+        self.snake.append(self.grid[head.x+dx[direction]][head.y + dy[direction]])
         return self.snake[-1], self.snake[-1], path
 
     def moveSnake(self, dir):
@@ -121,7 +130,6 @@ class IA:
             self.food = self.grid[X-1][Y-1]
             cntApple += 1
             if not (self.food in self.snake):
-                # print(f"Apple: {cntApple}")
                 break
 
     def searchHead(self):
@@ -155,8 +163,8 @@ class IA:
                 self.grid[i][j].show(WHITE, screen, wr, hr)
 
         # Display the snake
-        for point in self.snake:
-            point.show(RED, screen, wr, hr)
+        for node2 in self.snake:
+            node2.show(RED, screen, wr, hr)
         self.snake[-1].show(BLUE, screen, wr, hr)
 
         # Display the food
@@ -221,7 +229,7 @@ class IA:
 
             if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
                 # print(["==","v: ",headV.x, headV.y, "R: ", self.headR.x, self.headR.y, cnt])
-                dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols)  # Funcion interna de calculo
+                dir_array = self.calculate.getpath(self.food, self.snake, self.grid, self.rows, self.cols)  # Funcion interna de calculo
                 direction = dir_array.pop(-1)
                 head, headV, path = self.move(head, direction, path)
                 dir = path.pop(0)

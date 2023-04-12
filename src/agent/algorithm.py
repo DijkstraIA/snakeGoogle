@@ -1,6 +1,14 @@
 from numpy import sqrt
+import numpy as np
 
-class asterisk:
+from model.piece import node
+
+#Variables auxiliares
+dx = [0, 1, 0, -1]
+dy = [1, 0, -1, 0]
+dword = ['right', 'down', 'left', 'up']
+
+class algorithms:
     def __init__(self):
         self.ini = 1
 
@@ -16,7 +24,7 @@ class asterisk:
             openset = [openset[i] for i in range(len(openset)) if not openset[i] == current1]
             closedset.append(current1)
             for neighbor in current1.neighbors:
-                if neighbor not in closedset and not neighbor.obstrucle and neighbor not in snake1:
+                if neighbor not in closedset and neighbor not in snake1:
                     tempg = neighbor.g + 1
                     if neighbor in openset:
                         if tempg < neighbor.g:
@@ -46,3 +54,47 @@ class asterisk:
                 grid[i][j].h = 0
                 grid[i][j].g = 0
         return dir_array1
+
+
+    def bfs(self, food, snake, grid, rows, cols):
+        snake1 = np.array(snake)
+        food1 = food
+        # grid1 = np.array(grid)
+
+        dist = np.full((rows, cols), -1)
+        pending = []
+        direction = []
+
+        pending.append(snake1[-1])
+        dist[snake1[-1].x][snake1[-1].y] = 0
+
+        while len(pending) > 0:
+            current = pending.pop(0)
+            for neighbor in current.neighbors:
+                if dist[neighbor.x][neighbor.y] == -1 and neighbor not in snake1:
+                    dist[neighbor.x][neighbor.y] = dist[current.x][current.y] + 1
+                    pending.append(neighbor)
+                    neighbor.camefrom = current
+            if current == food1:
+                break
+        
+        current = food1
+        while current != snake1[-1]:
+            diri = current.x - current.camefrom.x
+            dirj = current.y - current.camefrom.y
+            # print(["from",current.x, current.y])
+            # print(["to",current.camefrom.x, current.camefrom.y])
+            if diri == -1:
+                direction.append(3)
+            elif diri == 1:
+                direction.append(1)
+            elif dirj == 1:
+                direction.append(0)
+            elif dirj == -1:
+                direction.append(2)
+            # print(["bfs",diri, dirj, direction[-1]])
+            current = current.camefrom
+
+        # dword = ['right', 'down', 'left', 'up']    
+        return direction
+
