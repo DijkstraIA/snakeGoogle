@@ -68,7 +68,7 @@ class IA:
 
     def play(self):
         cnt = 0
-        # clock = time.Clock()
+        clock = time.Clock()
         # print([self.score, cnt])
         try:
             # global headR
@@ -79,10 +79,16 @@ class IA:
             headR = self.searchHead()
             # print([head.x, head.y])
             path = []
+            # clock.tick(1000000)
             while 1:
                 cnt+=1
-                print([head2.x, head2.y, headR.x, headR.y, cnt])
-                if head2.x == headR.x and head2.y == headR.y and self.score <= 10:
+                headR = self.searchHead()
+                if abs(head2.x - headR.x) >= 2 or abs(head2.y - headR.y) >= 2:
+                    print(["v: ",head2.x, head2.y, "R: ", headR.x, headR.y, cnt])
+                    print(f"Desincronizacion: i: {abs(head2.x - headR.x)} , j: {abs(head2.y - headR.y)}")
+                    break
+
+                if abs(head2.x - headR.x) <= 1 and abs(head2.y - headR.y) <= 1:
                     # print([cnt, self.score, direction, head.x, head.y, self.food.x, self.food.y ])
                     dir_array = self.asterisk.getpath(self.food, self.snake, self.grid, self.rows, self.cols) ##Funcion interna de calculo
                     direction = dir_array.pop(-1)
@@ -94,8 +100,7 @@ class IA:
                         self.searchApple()
                     else:
                         self.snake.pop(0)
-                else:
-                    headR = self.searchHead()
+                    # self.printBoard() # Imprime el tablero interno
                 if keyboard.is_pressed("q"):
                     break
         except Exception as e:
@@ -149,20 +154,20 @@ class IA:
         display.set_caption("snake_self")
         clock = time.Clock()
         
-        clock.tick(6)
+        # clock.tick(6)
         # Display the grid
         screen.fill(BLACK)
         for i in range(self.rows):
             for j in range(self.cols):
-                self.grid[i][j].show(WHITE)
+                self.grid[i][j].show(WHITE, screen, wr, hr)
 
         # Display the snake
         for point in self.snake:
-            point.show(RED)
-        self.snake[-1].show(BLUE)
+            point.show(RED, screen, wr, hr)
+        self.snake[-1].show(BLUE, screen, wr, hr)
 
         # Display the food
-        self.food.show(GREEN)
+        self.food.show(GREEN, screen, wr, hr)
 
         display.flip()
 

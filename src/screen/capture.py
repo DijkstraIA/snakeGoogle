@@ -78,8 +78,10 @@ class capture:
             whilte_point = cv2.findNonZero(thresh)
 
             if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
-                x = whilte_point[0][0][0]
-                y = whilte_point[0][0][1]
+                ind = int(len(whilte_point)//2)
+
+                x = whilte_point[ind][0][0]
+                y = whilte_point[ind][0][1]
                 
                 I = np.floor(y/self.wi) + 1
                 J = np.floor(x/self.hi) + 1

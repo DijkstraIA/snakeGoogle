@@ -44,7 +44,7 @@ while True:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Aplica una umbralización para detectar los píxeles blancos
-    ret, thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
+    ret, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
 
     # Encuentra los contornos de los objetos en la imagen
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -55,9 +55,10 @@ while True:
         # print(whilte_point[0])
         # print(type(whilte_point[0]))
         # clock.tick(6)
-
-        x = whilte_point[0][0][0]
-        y = whilte_point[0][0][1]
+        print(len(whilte_point))
+        ind = int(len(whilte_point)//2)
+        x = whilte_point[ind][0][0]
+        y = whilte_point[ind][0][1]
         print([x,y])
         
         # Y = np.round(((x)-iniX)/disSquard + 1)
