@@ -7,12 +7,13 @@ from model.piece import node
 dx = [0, 1, 0, -1]
 dy = [1, 0, -1, 0]
 dword = ['right', 'down', 'left', 'up']
+dfsFlag = 0
 
 class algorithms:
     def __init__(self):
         self.ini = 1
 
-    def getpath(self, food1, snake1, grid, rows, cols):
+    def asterisk1(self, food1, snake1, grid, rows, cols):
         food1.camefrom = []
         for s in snake1:
             s.camefrom = []
@@ -56,22 +57,22 @@ class algorithms:
         return dir_array1
 
 
-    def bfs(self, food, snake, grid, rows, cols):
+    def bfs(self, food, snake, rows, cols):
         snake1 = np.array(snake)
         food1 = food
-        # grid1 = np.array(grid)
 
         dist = np.full((rows, cols), -1)
         pending = []
         direction = []
 
         pending.append(snake1[-1])
-        dist[snake1[-1].x][snake1[-1].y] = 0
+        for node in snake1:
+            dist[node.x][node.y] = 0
 
         while len(pending) > 0:
             current = pending.pop(0)
             for neighbor in current.neighbors:
-                if dist[neighbor.x][neighbor.y] == -1 and neighbor not in snake1:
+                if dist[neighbor.x][neighbor.y] == -1:
                     dist[neighbor.x][neighbor.y] = dist[current.x][current.y] + 1
                     pending.append(neighbor)
                     neighbor.camefrom = current
@@ -92,9 +93,52 @@ class algorithms:
                 direction.append(0)
             elif dirj == -1:
                 direction.append(2)
-            # print(["bfs",diri, dirj, direction[-1]])
             current = current.camefrom
 
         # dword = ['right', 'down', 'left', 'up']    
         return direction
 
+    def dfs(self, food, current, rows, cols, vis):
+        global dfsFlag
+        if dfsFlag == 1:
+            return
+        vis[current.x][current.y] = 0
+        for neighbor in current.neighbors:
+            if vis[neighbor.x][neighbor.y] == -1:
+                self.dfs(food, neighbor, rows, cols, vis)
+                neighbor.camefrom = current
+        if current == food:
+            dfsFlag = 1
+            return
+        
+
+
+    def dfsAll(self, food, snake, rows, cols):
+        snake1 = np.array(snake)
+        food1 = food
+        vis = np.full((rows, cols), -1)
+
+        for node in snake1:
+            vis[node.x][node.y] = 0
+        
+        global dfsFlag
+        dfsFlag = 0
+        self.dfs(food1, snake1[-1], rows, cols, vis)
+        direction = []
+
+        current = food1
+        while current != snake1[-1]:
+            diri = current.x - current.camefrom.x
+            dirj = current.y - current.camefrom.y
+            if diri == -1:
+                direction.append(3)
+            elif diri == 1:
+                direction.append(1)
+            elif dirj == 1:
+                direction.append(0)
+            elif dirj == -1:
+                direction.append(2)
+            current = current.camefrom
+
+        # dword = ['right', 'down', 'left', 'up']    
+        return direction

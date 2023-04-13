@@ -6,8 +6,8 @@ dy = np.array([1, 0, -1, 0])
 
 class node:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = x # Posicion en filas
+        self.y = y # Posicion en columnas
         self.neighbors = []
         self.camefrom = []
         init()

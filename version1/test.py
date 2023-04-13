@@ -64,17 +64,17 @@ while True:
     # if keyboard.is_pressed(end):
     #     break
 
-    # # Tomo el azul
-    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Tomo el azul
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # # lower_red = np.array([100, 100, 100])
-    # # upper_red = np.array([140, 255, 255])
-    # lower_red = np.array([112, 172, 244])
+    # lower_red = np.array([100, 100, 100])
     # upper_red = np.array([140, 255, 255])
-    # mask = cv2.inRange(hsv, lower_red, upper_red)
-    # res = cv2.bitwise_and(img, img, mask=mask)
-    # # cv2.imshow('frame', img)
-    # gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    lower_red = np.array([112, 172, 244])
+    upper_red = np.array([140, 255, 255])
+    mask = cv2.inRange(hsv, lower_red, upper_red)
+    res = cv2.bitwise_and(img, img, mask=mask)
+    # cv2.imshow('frame', img)
+    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
     # mx = [0,0,0]
     # mn = [255,255,255]
     # for i in range(0, len(hsv)):
@@ -86,26 +86,26 @@ while True:
     # print(mn)
     # print(mx)
     # break
-    # cv2.imshow('mask', mask)
-    # # cv2.imshow('res', res)
-    # cv2.waitKey(1)
-    # # cv2.destroyAllWindows()
-    # if keyboard.is_pressed(end):
-    #     break
-
-    #Toma el rojo
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-    lower_red = np.array([0, 100, 100])
-    upper_red = np.array([10, 255, 255])
-    # lower_red = np.array([40, 166, 209])
-    # upper_red = np.array([10, 255, 255])
-    mask = cv2.inRange(hsv, lower_red, upper_red)
-    res = cv2.bitwise_and(img, img, mask=mask)
-    cv2.imshow('frame', img)
     cv2.imshow('mask', mask)
-    cv2.imshow('res', res)
+    # cv2.imshow('res', res)
     cv2.waitKey(1)
+    # cv2.destroyAllWindows()
+    if keyboard.is_pressed(end):
+        break
+
+    # #Toma el rojo
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # lower_red = np.array([0, 100, 100])
+    # upper_red = np.array([10, 255, 255])
+    # # lower_red = np.array([40, 166, 209])
+    # # upper_red = np.array([10, 255, 255])
+    # mask = cv2.inRange(hsv, lower_red, upper_red)
+    # res = cv2.bitwise_and(img, img, mask=mask)
+    # cv2.imshow('frame', img)
+    # cv2.imshow('mask', mask)
+    # cv2.imshow('res', res)
+    # cv2.waitKey(1)
     # cv2.destroyAllWindows()
     # mx = [0,0,0]
     # mn = [255,255,255]

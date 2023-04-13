@@ -71,7 +71,6 @@ class IA:
         return snake
 
     def play(self):
-        # clock = time.Clock()
         sleep(1)
         itr = 0
         try:
@@ -79,8 +78,13 @@ class IA:
             direction = 1
             head = self.snake[-1]
             headV = self.snake[-1]
+
+            ## Algoritmos ## Funcion interna de calculo
+            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+            
+            flag = 0
             while 1:
-                # clock.tick(1)
+                sleep(0.001) 
                 itr += 1
                 self.searchHead()  ## Sensores
 
@@ -93,9 +97,8 @@ class IA:
                 
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
+                    # print(["== R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
                     
-                    dir_array = self.calculate.bfs(self.food, self.snake, self.grid, self.rows, self.cols)
-                    # dir_array = self.calculate.getpath(self.food, self.snake, self.grid, self.rows, self.cols)  ## Funcion interna de calculo
                     direction = dir_array.pop(-1)
                     head, headV, path = self.move(head, direction, path)
                     dir = path.pop(0)
@@ -105,6 +108,20 @@ class IA:
                     if head.x == self.food.x and head.y == self.food.y:
                         self.score += 1
                         self.searchApple()  ## Sensores
+
+                        ## Algoritmos ## Funcion interna de calculo
+                        if self.score <= 15:
+                            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        elif self.score <= 20:
+                            # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                            dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
+                        else:
+                            if flag == 0:
+                                dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                                flag = 1 - flag
+                            else:
+                                dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                                flag = 1 - flag
                     else:
                         self.snake.pop(0)
 
@@ -137,7 +154,6 @@ class IA:
         self.headR = self.grid[I-1][J-1]
 
 ### Otra funciones de prueba !!!
-
     def printBoard(self):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
@@ -172,78 +188,78 @@ class IA:
 
         display.flip()
 
-    def hilos(self):
-        import threading
-        while True:
-            # Crear los hilos
-            t1 = threading.Thread(target=self.play)
-            t2 = threading.Thread(target=self.printBoard)
-
-            # Iniciar los hilos
-            t1.start()
-            t2.start()
-
-            # Esperar a que terminen los hilos
-            t1.join()
-            t2.join()
-            if keyboard.is_pressed("q"):
-                break
-
-    def go(self):
-        # opcSensor = 0
+    def playVirtual(self):
+        sleep(1)
+        clock = time.Clock()
         itr = 0
-        sleep(2)
-        st = 201
-        while True:
-            itr += 1
-            if st == 201:
-                self.sensor(0)
-            else:
-                self.sensor(2)
-            dir, st = self.funtion(itr)
-            self.actuator(dir, st)
-            if keyboard.is_pressed("q") or st == 500:
-                break
-
-    def sensor(self, opc):
-        if opc == 0:
-            self.searchApple()
-            self.searchHead()
-        elif opc == 1:
-            self.searchApple()
-        elif opc == 2:
-            self.searchHead()
-
-    def funtion(self, cnt):
         try:
-            direction = 1
             path = []
+            direction = 1
             head = self.snake[-1]
             headV = self.snake[-1]
-            st = 400
-            dir = "0"
-            if abs(headV.x - self.headR.x) >= 2 or abs(headV.y - self.headR.y) >= 2:
-                print(["v: ", headV.x, headV.y, "R: ", self.headR.x, self.headR.y, cnt, "Score: ", self.score])
-                print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
-                st = 500
 
-            if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
-                # print(["==","v: ",headV.x, headV.y, "R: ", self.headR.x, self.headR.y, cnt])
-                dir_array = self.calculate.getpath(self.food, self.snake, self.grid, self.rows, self.cols)  # Funcion interna de calculo
-                direction = dir_array.pop(-1)
-                head, headV, path = self.move(head, direction, path)
-                dir = path.pop(0)
-                st = 200
-                if head.x == self.food.x and head.y == self.food.y:
-                    self.score += 1
-                    st = 201
-                else:
-                    self.snake.pop(0)
-            return dir, st
+            ## Algoritmos ## Funcion interna de calculo
+            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+            
+            while 1:
+                sleep(0.001)
+                clock.tick(6)
+
+                itr += 1
+                self.searchHeadVirtual()
+                
+                print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
+                print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
+
+                if True:                    
+                    direction = dir_array.pop(-1)
+                    head, headV, path = self.move(head, direction, path)
+                    dir = path.pop(0)
+                   
+                    if head.x == self.food.x and head.y == self.food.y:
+                        self.score += 1
+                        self.searchAppleVirtual()  ## Sensores
+
+                        ## Algoritmos ## Funcion interna de calculo
+                        if self.score <= 17:
+                            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        elif self.score <= 34:
+                            # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                            dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
+                        else:
+                            if flag == 0:
+                                dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                                flag = 1 - flag
+                            else:
+                                dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                                flag = 1 - flag
+
+                    else:
+                        self.snake.pop(0)
+
+                self.printBoard() ## Funcion interna de impresion
+                if keyboard.is_pressed("q"):
+                    print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
+                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
+                    print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
+                    break
         except Exception as e:
+            print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
+            print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
+            print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
             print(f"Error: {e}")
-            return "0", 500
 
-    def actuator(self, dir, st):
-        if st == 200:
-            self.moveSnake(dir)  # Actuadores
+    def searchAppleVirtual(self):
+        import random
+        cntApple = 0
+        while 1:
+            # Sensor con el percibe la posicion de la manzana
+            X, Y = random.randint(1, 15), random.randint(1, 17)
+            self.food = self.grid[X-1][Y-1]
+            cntApple += 1
+            if not (self.food in self.snake):
+                break
+    
+    def searchHeadVirtual(self):
+        I, J = self.snake[-1].x+1, self.snake[-1].y+1
+        self.headR = self.grid[I-1][J-1]

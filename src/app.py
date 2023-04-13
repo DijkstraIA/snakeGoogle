@@ -3,8 +3,8 @@ from agent.agentSnake import IA
 agent = IA()
 
 def main():
-    # agent.go()
-    agent.play()
+    agent.playVirtual() # Simulacion sin lectura de sensores
+    # agent.play() # Simulacion con lectura de sensores
 
 if __name__ == "__main__":
     main()
