@@ -108,8 +108,10 @@ class IA:
                     if head.x == self.food.x and head.y == self.food.y:
                         self.score += 1
                         self.searchApple()  ## Sensores
-
+                        
                         ## Algoritmos ## Funcion interna de calculo
+                        # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+
                         if self.score <= 15:
                             dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
                         elif self.score <= 20:
@@ -208,8 +210,7 @@ class IA:
                 itr += 1
                 self.searchHeadVirtual()
                 
-                print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-                print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
+                print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1, "Itr:", itr])
 
                 if True:                    
                     direction = dir_array.pop(-1)
@@ -221,32 +222,30 @@ class IA:
                         self.searchAppleVirtual()  ## Sensores
 
                         ## Algoritmos ## Funcion interna de calculo
-                        if self.score <= 17:
-                            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        elif self.score <= 34:
-                            # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
-                            dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
-                        else:
-                            if flag == 0:
-                                dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
-                                flag = 1 - flag
-                            else:
-                                dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                                flag = 1 - flag
+                        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+
+                        # if self.score <= 17:
+                        #     dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        # elif self.score <= 34:
+                        #     # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                        #     dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
+                        # else:
+                        #     if flag == 0:
+                        #         dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                        #         flag = 1 - flag
+                        #     else:
+                        #         dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        #         flag = 1 - flag
 
                     else:
                         self.snake.pop(0)
 
                 self.printBoard() ## Funcion interna de impresion
                 if keyboard.is_pressed("q"):
-                    print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
-                    print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
+                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1, "Itr:", itr])
                     break
         except Exception as e:
-            print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-            print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
-            print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
+            print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1, "Itr:", itr])
             print(f"Error: {e}")
 
     def searchAppleVirtual(self):
