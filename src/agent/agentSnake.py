@@ -82,23 +82,25 @@ class IA:
             ## Algoritmos ## Funcion interna de calculo
             dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
             
-            flag = 0
             while 1:
-                sleep(0.001) 
+                sleep(0.001)
                 itr += 1
                 self.searchHead()  ## Sensores
 
+                ## Algoritmos ## Funcion interna de calculo
+                dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
+
                 # Comprobacion de desincronizacion
-                if abs(headV.x - self.headR.x) >= lim or abs(headV.y - self.headR.y) >= lim:
+                if abs(headV.x - self.headR.x) >= lim or abs(headV.y - self.headR.y) >= lim or len(dir_array) == 0:
                     print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1])
+                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1], "Len dir:", len(dir_array))
                     print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
                     break
                 
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
                     # print(["== R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-                    
+
                     direction = dir_array.pop(-1)
                     head, headV, path = self.move(head, direction, path)
                     dir = path.pop(0)
@@ -110,20 +112,11 @@ class IA:
                         self.searchApple()  ## Sensores
                         
                         ## Algoritmos ## Funcion interna de calculo
+                        # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
                         # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
 
-                        if self.score <= 15:
-                            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        elif self.score <= 20:
-                            # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
-                            dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
-                        else:
-                            if flag == 0:
-                                dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
-                                flag = 1 - flag
-                            else:
-                                dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                                flag = 1 - flag
                     else:
                         self.snake.pop(0)
 
@@ -189,6 +182,16 @@ class IA:
         self.food.show(GREEN, screen, wr, hr)
 
         display.flip()
+    
+    def reset(self):
+        # Creacion de la serpiente
+        pyautogui.press("enter")
+        sleep(0.5)
+        self.lenSanke = 4
+        headSnake = self.grid[8][5]
+        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
+        self.score = 0
+        self.searchApple()
 
     def playVirtual(self):
         sleep(1)

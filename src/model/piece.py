@@ -27,3 +27,9 @@ class node:
         for dir in range(4):
             if self.inGrid(self.x+dx[dir], self.y+dy[dir], rows, cols):
                 self.neighbors.append(grid[self.x+dx[dir]][self.y+dy[dir]])
+    
+    # def __eq__(self, node2):
+    #     return self.f == node2.f
+    
+    def __lt__(self, node2):
+        return self.f < node2.f
