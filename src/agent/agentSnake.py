@@ -25,6 +25,7 @@ lim = 2
 dx = [0, 1, 0, -1]
 dy = [1, 0, -1, 0]
 dword = ['right', 'down', 'left', 'up']
+# dword = ['d', 's', 'a', 'w']
 
 class IA:
     def __init__(self):
@@ -112,9 +113,9 @@ class IA:
                         self.searchApple()  ## Sensores
                         
                         ## Algoritmos ## Funcion interna de calculo
+                        # dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
                         # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
 
                     else:
@@ -133,6 +134,7 @@ class IA:
 
     def moveSnake(self, dir):
         pyautogui.press(dir)
+        # keyboard.press(dir)
 
     def searchApple(self):
         cntApple = 0
