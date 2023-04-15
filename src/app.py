@@ -1,21 +1,23 @@
 from agent.agentSnake import IA
-import keyboard
-from time import sleep
+import time
+import sys
 
 agent = IA()
+tiempo_inicio = time.time()
+tiempo_limite = 65  # segundos
 
 def main():
     itr = 1
     while(True):
-        print("Inicio de iteracion: ", itr)
+        print("-+-+-Inicio de iteracion: ", itr)
         # agent.playVirtual() # Simulacion sin lectura de sensores
         agent.play() # Simulacion con lectura de sensores
         agent.reset()
-        print("------------------")
-        itr+=1
-        sleep(.10)
-        if keyboard.is_pressed("q") | itr > 10:
-            break
+        itr += 1
+        tiempo_actual = time.time()
+        if tiempo_actual - tiempo_inicio >= tiempo_limite:
+            # Si ha pasado un minuto, detener el programa
+            sys.exit()
 
 if __name__ == "__main__":
     main()
