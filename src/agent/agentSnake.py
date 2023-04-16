@@ -78,10 +78,13 @@ class IA:
 
     def play(self):
         path = []
-        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols) #[0, 0, 0, 0, 0, 0, 0, 0]
+        # dir_array = [0, 0, 0, 0, 0, 0, 0, 0]
         try:            
             while 1: #Time max 0.2 a 0.3 por iteracion
                 self.searchHead()  ## Sensores
+
+                # Algoritmos ## Funcion interna de calculo
+                dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
                 
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if (abs(self.headV1.x - self.headR1.x) == 0 and abs(self.headV1.y - self.headR1.y) == 0):
@@ -96,7 +99,7 @@ class IA:
                         self.searchApple()  ## Sensores
                         
                         ## Algoritmos ## Funcion interna de calculo
-                        dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
                         # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
@@ -104,7 +107,7 @@ class IA:
                     else:
                         self.snake.pop(0)
                         
-                if keyboard.is_pressed("q") or self.endGame():
+                if keyboard.is_pressed("q") or self.endGame(): #or len(dir_array) == 0:
                     break
             print(["INFO:", "score:", self.score])
         except Exception as e:
@@ -164,12 +167,12 @@ class IA:
     def go(self):
         sleep(1)
         itr = 1
-        tiempo_limite = 65  # segundos
+        tiempo_limite = 60+5  # segundos
         tiempo_inicio = time2.time()
         while(True):
             print("-+-+-Inicio de iteracion: ", itr)
-            self.playVirtual() # Simulacion sin lectura de sensores
-            # self.play() # Simulacion con lectura de sensores
+            # self.playVirtual() # Simulacion sin lectura de sensores
+            self.play() # Simulacion con lectura de sensores
             self.reset()
             itr += 1
             sleep(0.5)

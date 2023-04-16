@@ -76,7 +76,8 @@ class algorithms:
                     neighbor.camefrom = current
             if current == food1:
                 break
-           
+        if dist[food1.x][food1.y] == -1:
+            return []           
         return self.path(food1, snake1[-1])
     
     def asterisk2(self, food, snake, rows, cols):
@@ -116,6 +117,9 @@ class algorithms:
                     neighbor.camefrom = current
             if current == food1:
                 break
+
+        if distance[food1.x][food1.y] == oo:
+            return []
         return self.path(food1, snake1[-1])
 
     def f(self, current, neighbor, food):
@@ -149,7 +153,9 @@ class algorithms:
         dfsFlag = 0
         self.dfs(food1, snake1[-1], rows, cols, vis)
 
-        # dword = ['right', 'down', 'left', 'up']    
+        # dword = ['right', 'down', 'left', 'up']
+        if vis[food1.x][food1.y] == -1:
+            return []
         return self.path(food1, snake1[-1])
 
     def path(self, food, head):
