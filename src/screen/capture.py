@@ -136,7 +136,7 @@ class capture:
             J = np.floor(x/self.hi) + 1
             return int(I),int(J)
         except:
-            print("Error encontrando el azul")
+            # print("Error encontrando el azul")
             return -1,-1
 
     def scanYellow(self):

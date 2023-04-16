@@ -1,9 +1,9 @@
-import sys
 from pygame import display, time, init
 from time import sleep
 import time as time2
 import pyautogui
 import keyboard
+import sys
 import os
 
 from agent.algorithm import algorithms
@@ -77,11 +77,10 @@ class IA:
         return snake
 
     def play(self):
-        sleep(1)
         path = []
-        dir_array = [0, 0, 0, 0, 0, 0, 0, 0]
+        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols) #[0, 0, 0, 0, 0, 0, 0, 0]
         try:            
-            while 1: #Time max 0.2 por iteracion
+            while 1: #Time max 0.2 a 0.3 por iteracion
                 self.searchHead()  ## Sensores
                 
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
@@ -119,8 +118,8 @@ class IA:
         return path
 
     def moveSnake(self, dir):
-        keyboard.press(dir)
-        # pyautogui.press(dir)
+        # keyboard.press(dir)
+        pyautogui.press(dir)
 
     def searchApple(self):
         cntApple = 0
@@ -136,13 +135,63 @@ class IA:
         I, J = self.captureImg.scanBlue2()
         self.headR1 = self.grid[I-1][J-1]
 
+        # I, J = self.captureImg.scanBlue()
         # I, J = self.captureImg.scanWhite()
         # self.headR2 = self.grid[I-1][J-1]
     
     def endGame(self):
         return self.captureImg.scanYellow()
+    
+    def reset(self):
+        # Creacion de la serpiente
+        pyautogui.press("enter")
+        # keyboard.press("enter")
+
+        # Creacion de la serpiente
+        self.lenSanke = 4
+        headSnake = self.grid[8][5]
+        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
+        self.headV1 = self.snake[-1]
+        self.headV2 = self.snake[-2]
+        self.headR1 = self.snake[-1]
+        self.headR2 = self.snake[-2]
+
+        # Posicion inicial de la manzana
+        self.food = self.grid[8-1][13-1]
+        self.searchApple()
+
+    def go(self):
+        sleep(1)
+        itr = 1
+        tiempo_limite = 65  # segundos
+        tiempo_inicio = time2.time()
+        while(True):
+            print("-+-+-Inicio de iteracion: ", itr)
+            # agent.playVirtual() # Simulacion sin lectura de sensores
+            self.play() # Simulacion con lectura de sensores
+            self.reset()
+            itr += 1
+            sleep(0.5)
+            tiempo_actual = time2.time()
+            if tiempo_actual - tiempo_inicio >= tiempo_limite:
+                # Si ha pasado un minuto, detener el programa
+                sys.exit()
 
 ### Otra funciones de prueba !!!
+    def times(self, opc, tiempo_inicio, tiempo_limite, name):
+        if opc == 0:
+            tiempo_inicio = time2.time()
+            return tiempo_inicio
+        elif opc == 1:
+            tiempo_final = time2.time()
+            tiempo_ejecucion = tiempo_final - tiempo_inicio
+            if tiempo_ejecucion > 0.0:
+                print(f"Tiempo de ejecucion {name}: ", tiempo_ejecucion)
+            if tiempo_ejecucion >= tiempo_limite:
+                print(f"Tiempo de ejecucion excedido {name}")
+                sys.exit()
+            return int(0)
+        
     def printBoard(self):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
@@ -176,38 +225,6 @@ class IA:
         self.food.show(GREEN, screen, wr, hr)
 
         display.flip()
-    
-    def reset(self):
-        # Creacion de la serpiente
-        pyautogui.press("enter")
-        sleep(0.5)
-
-        # Creacion de la serpiente
-        self.lenSanke = 4
-        headSnake = self.grid[8][5]
-        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
-        self.headV1 = self.snake[-1]
-        self.headV2 = self.snake[-2]
-        self.headR1 = self.snake[-1]
-        self.headR2 = self.snake[-2]
-
-        # Posicion inicial de la manzana
-        self.food = self.grid[8-1][13-1]
-        self.searchApple()
-
-    def times(self, opc, tiempo_inicio, tiempo_limite, name):
-        if opc == 0:
-            tiempo_inicio = time2.time()
-            return tiempo_inicio
-        elif opc == 1:
-            tiempo_final = time2.time()
-            tiempo_ejecucion = tiempo_final - tiempo_inicio
-            if tiempo_ejecucion > 0.0:
-                print(f"Tiempo de ejecucion {name}: ", tiempo_ejecucion)
-            if tiempo_ejecucion >= tiempo_limite:
-                print(f"Tiempo de ejecucion excedido {name}")
-                sys.exit()
-            return int(0)
         
     def playVirtual(self):
         sleep(1)
