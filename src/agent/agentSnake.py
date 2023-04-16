@@ -1,5 +1,7 @@
+import sys
 from pygame import display, time, init
 from time import sleep
+import time as time2
 import pyautogui
 import keyboard
 import os
@@ -79,8 +81,9 @@ class IA:
         path = []
         dir_array = [0,0,0,0,0,0,0,0,0]
         try:            
-            while 1:
+            while 1: #Time max 0.2 por iteracion
                 self.searchHead()  ## Sensores
+                
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if (abs(self.headV1.x - self.headR1.x) == 0 and abs(self.headV1.y - self.headR1.y) == 0) or  (abs(self.headV2.x - self.headR2.x) == 0 and abs(self.headV2.y - self.headR2.y) == 0):
                     direction = dir_array.pop(-1)
@@ -101,6 +104,7 @@ class IA:
 
                     else:
                         self.snake.pop(0)
+                        
                 if keyboard.is_pressed("q") or self.endGame():
                     break
             print(["INFO:", "score:", self.score])
@@ -191,6 +195,20 @@ class IA:
         self.food = self.grid[8-1][13-1]
         self.searchApple()
 
+    def times(self, opc, tiempo_inicio, tiempo_limite, name):
+        if opc == 0:
+            tiempo_inicio = time2.time()
+            return tiempo_inicio
+        elif opc == 1:
+            tiempo_final = time2.time()
+            tiempo_ejecucion = tiempo_final - tiempo_inicio
+            if tiempo_ejecucion > 0.0:
+                print(f"Tiempo de ejecucion {name}: ", tiempo_ejecucion)
+            if tiempo_ejecucion >= tiempo_limite:
+                print(f"Tiempo de ejecucion excedido {name}")
+                sys.exit()
+            return int(0)
+        
     def playVirtual(self):
         sleep(1)
         clock = time.Clock()
