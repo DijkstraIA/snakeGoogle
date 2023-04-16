@@ -174,8 +174,8 @@ class IA:
         tiempo_inicio = time2.time()
         while(True):
             print("-+-+-Inicio de iteracion: ", itr)
-            # self.playVirtual() # Simulacion sin lectura de sensores
-            self.play() # Simulacion con lectura de sensores
+            self.playVirtual() # Simulacion sin lectura de sensores
+            # self.play() # Simulacion con lectura de sensores
             self.reset()
             itr += 1
             sleep(0.5)
@@ -238,6 +238,7 @@ class IA:
         clock = time.Clock()
         path = []
         dir_array = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.food = self.grid[8-1][13-1]
         try:
             while 1:
                 self.searchHeadVirtual()
