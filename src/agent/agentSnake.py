@@ -118,8 +118,8 @@ class IA:
         return path
 
     def moveSnake(self, dir):
-        # keyboard.press(dir)
-        pyautogui.press(dir)
+        keyboard.press(dir)
+        # pyautogui.press(dir)
 
     def searchApple(self):
         cntApple = 0
@@ -132,7 +132,7 @@ class IA:
                 break
 
     def searchHead(self):
-        I, J = self.captureImg.scanBlue2()
+        I, J = self.captureImg.scanBlueV2()
         self.headR1 = self.grid[I-1][J-1]
 
         # I, J = self.captureImg.scanBlue()
@@ -155,6 +155,7 @@ class IA:
         self.headV2 = self.snake[-2]
         self.headR1 = self.snake[-1]
         self.headR2 = self.snake[-2]
+        self.score = 0
 
         # Posicion inicial de la manzana
         self.food = self.grid[8-1][13-1]
@@ -167,8 +168,8 @@ class IA:
         tiempo_inicio = time2.time()
         while(True):
             print("-+-+-Inicio de iteracion: ", itr)
-            # agent.playVirtual() # Simulacion sin lectura de sensores
-            self.play() # Simulacion con lectura de sensores
+            self.playVirtual() # Simulacion sin lectura de sensores
+            # self.play() # Simulacion con lectura de sensores
             self.reset()
             itr += 1
             sleep(0.5)
@@ -231,6 +232,7 @@ class IA:
         clock = time.Clock()
         path = []
         dir_array = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.food = self.grid[8-1][13-1]
         try:
             while 1:
                 self.searchHeadVirtual()

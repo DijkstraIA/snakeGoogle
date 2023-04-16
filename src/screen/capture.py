@@ -27,7 +27,7 @@ class capture:
         self.wi = wi
         self.hi = hi
 
-    def scanRed(self):
+    def scanRedV2(self):
         I = -1
         J = -1
         while True:
@@ -53,6 +53,28 @@ class capture:
                 x = centroid_x
                 I = np.floor(y/self.wi) + 1
                 J = np.floor(x/self.hi) + 1
+                break
+        return int(I),int(J)
+    
+    def scanRed(self):
+        I = -1
+        J = -1
+        while True:
+            img =  np.array(sct.grab(monitor=self.dim_board))
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+            #Toma el rojo
+            lower_red = np.array([0, 100, 100])
+            upper_red = np.array([10, 255, 255])
+            mask = cv2.inRange(hsv, lower_red, upper_red)
+            
+            whilte_point = cv2.findNonZero(mask)
+            if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
+                ind = int(len(whilte_point)//3)
+                x = whilte_point[ind][0][0]
+                y = whilte_point[ind][0][1]
+                I = np.floor(y/self.wi) + 1
+                J = np.floor(x/self.hi) + 1              
                 break
         return int(I),int(J)
 
@@ -84,7 +106,7 @@ class capture:
                 # self.printScreen2(img, mask, "White", I, J, x, y)
                 return int(I),int(J)
 
-    def scanBlue(self):
+    def scanBlueV2(self):
         I = -1
         J = -1
         try:
@@ -116,7 +138,7 @@ class capture:
             print("Error encontrando el azul")
             return -1,-1
         
-    def scanBlue2(self):
+    def scanBlue(self):
         I = -1
         J = -1
         try:
