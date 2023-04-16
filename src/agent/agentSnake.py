@@ -31,8 +31,11 @@ class IA:
     def __init__(self):
         # Variables de captura de pantalla
         board = monitorObj(left[0], top[0], width[0], height[0])
-        self.captureApple = capture(board, wi, hi)
-        self.captureHead = capture(board, wi, hi)
+        self.captureImg = capture(board, wi, hi)
+
+        # Instancia del algoritmo
+        self.calculate = algorithms()
+        init()
 
         # Variables de juego
         self.score = 0
@@ -50,15 +53,15 @@ class IA:
         self.lenSanke = 4
         headSnake = self.grid[8][5]
         self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
+        self.headV1 = self.snake[-1]
+        self.headV2 = self.snake[-2]
+        self.headR1 = self.snake[-1]
+        self.headR2 = self.snake[-2]
 
         # Posicion inicial de la manzana
         self.food = self.grid[8-1][13-1]
         self.searchApple()
 
-        # Instancia del algoritmo
-        self.calculate = algorithms()
-        
-        init()
 
     def createGraph(self):
         for i in range(self.rows):
@@ -73,82 +76,67 @@ class IA:
 
     def play(self):
         sleep(1)
-        itr = 0
-        try:
-            path = []
-            direction = 1
-            head = self.snake[-1]
-            headV = self.snake[-1]
-
-            ## Algoritmos ## Funcion interna de calculo
-            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-            
+        path = []
+        dir_array = [0,0,0,0,0,0,0,0,0]
+        try:            
             while 1:
-                sleep(0.001)
-                itr += 1
                 self.searchHead()  ## Sensores
-
-                ## Algoritmos ## Funcion interna de calculo
-                dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
-
-                # Comprobacion de desincronizacion
-                if abs(headV.x - self.headR.x) >= lim or abs(headV.y - self.headR.y) >= lim or len(dir_array) == 0:
-                    print(["R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-                    print(["INFO:", "score:", self.score, "apple:", self.food.x+1, self.food.y+1], "Len dir:", len(dir_array))
-                    print(f"Desincronizacion: i: {abs(headV.x - self.headR.x)} , j: {abs(headV.y - self.headR.y)}")
-                    break
-                
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
-                if abs(headV.x - self.headR.x) == 0 and abs(headV.y - self.headR.y) == 0:
-                    # print(["== R:", self.headR.x+1, self.headR.y+1, "v:", headV.x+1, headV.y+1, "Itr:", itr])
-
+                if (abs(self.headV1.x - self.headR1.x) == 0 and abs(self.headV1.y - self.headR1.y) == 0) or  (abs(self.headV2.x - self.headR2.x) == 0 and abs(self.headV2.y - self.headR2.y) == 0):
                     direction = dir_array.pop(-1)
-                    head, headV, path = self.move(head, direction, path)
+                    path = self.move(self.headV1, direction, path)
                     dir = path.pop(0)
                     
                     self.moveSnake(dir)  ## Actuadores
                     
-                    if head.x == self.food.x and head.y == self.food.y:
+                    if self.headV1.x == self.food.x and self.headV1.y == self.food.y:
                         self.score += 1
                         self.searchApple()  ## Sensores
                         
                         ## Algoritmos ## Funcion interna de calculo
-                        # dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
+                        dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
                         # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
 
                     else:
                         self.snake.pop(0)
-
-                # self.printBoard() ## Funcion interna de impresion
-                if keyboard.is_pressed("q"):
+                if keyboard.is_pressed("q") or self.endGame():
                     break
+            print(["INFO:", "score:", self.score])
         except Exception as e:
             print(f"Error: {e}")
 
     def move(self, head, direction, path):
         path.append(dword[direction])
         self.snake.append(self.grid[head.x+dx[direction]][head.y + dy[direction]])
-        return self.snake[-1], self.snake[-1], path
+        self.headV1 = self.snake[-1]
+        self.headV2 = self.snake[-2]
+        return path
 
     def moveSnake(self, dir):
-        pyautogui.press(dir)
-        # keyboard.press(dir)
+        keyboard.press(dir)
+        # pyautogui.press(dir)
 
     def searchApple(self):
         cntApple = 0
         while 1:
             # Sensor con el percibe la posicion de la manzana
-            X, Y = self.captureApple.scanRed()
+            X, Y = self.captureImg.scanRed()
             self.food = self.grid[X-1][Y-1]
             cntApple += 1
             if not (self.food in self.snake):
                 break
 
     def searchHead(self):
-        I, J = self.captureHead.scanBlue()
-        self.headR = self.grid[I-1][J-1]
+        I, J = self.captureImg.scanBlue()
+        self.headR1 = self.grid[I-1][J-1]
+
+        # I, J = self.captureImg.scanWhite()
+        # self.headR2 = self.grid[I-1][J-1]
+    
+    def endGame(self):
+        return self.captureImg.scanYellow()
 
 ### Otra funciones de prueba !!!
     def printBoard(self):
@@ -189,10 +177,18 @@ class IA:
         # Creacion de la serpiente
         pyautogui.press("enter")
         sleep(0.5)
+
+        # Creacion de la serpiente
         self.lenSanke = 4
         headSnake = self.grid[8][5]
         self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
-        self.score = 0
+        self.headV1 = self.snake[-1]
+        self.headV2 = self.snake[-2]
+        self.headR1 = self.snake[-1]
+        self.headR2 = self.snake[-2]
+
+        # Posicion inicial de la manzana
+        self.food = self.grid[8-1][13-1]
         self.searchApple()
 
     def playVirtual(self):

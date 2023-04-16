@@ -64,17 +64,19 @@ while True:
     # if keyboard.is_pressed(end):
     #     break
 
-    # Tomo el azul
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # # Tomo el azul
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # lower_red = np.array([100, 100, 100])
-    # upper_red = np.array([140, 255, 255])
-    lower_red = np.array([112, 172, 244])
-    upper_red = np.array([140, 255, 255])
-    mask = cv2.inRange(hsv, lower_red, upper_red)
-    res = cv2.bitwise_and(img, img, mask=mask)
+    # # lower_red = np.array([100, 100, 100])
+    # # upper_red = np.array([140, 255, 255])
+    # lower_blue = np.array([112, 172, 244])
+    # upper_blue = np.array([140, 255, 255])
+    # mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    # cv2.imshow('mask', mask)
+    # cv2.waitKey(1)
+    # res = cv2.bitwise_and(img, img, mask=mask)
     # cv2.imshow('frame', img)
-    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
     # mx = [0,0,0]
     # mn = [255,255,255]
     # for i in range(0, len(hsv)):
@@ -86,12 +88,92 @@ while True:
     # print(mn)
     # print(mx)
     # break
-    cv2.imshow('mask', mask)
     # cv2.imshow('res', res)
-    cv2.waitKey(1)
     # cv2.destroyAllWindows()
-    if keyboard.is_pressed(end):
-        break
+    # if keyboard.is_pressed(end):
+    #     break
+
+    # Tomo el azul v2
+    # Cargar la imagen desde un archivo PNG.
+    # img = cv2.imread("ruta/a/la/imagen.png")
+
+    # # Convertir la imagen de formato BGR a formato HSV.
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # # Definir el rango de color azul.
+    # # lower_blue = np.array([112, 172, 244])
+    # lower_blue = np.array([0, 0, 255])
+    # upper_blue = np.array([0, 0, 255])
+    # mx = [0,0,0]
+    # mn = [255,255,255]
+    # # for i in range(0, len(hsv)):
+    # #     for j in range(0, len(hsv[0])):
+    # #         if hsv[i][j][0] > mx[0] and hsv[i][j][1] > mx[1] and hsv[i][j][2] > mx[2]:
+    # #             mx = hsv[i][j]
+    # #         if hsv[i][j][0] <= mn[0] and hsv[i][j][1] <= mn[1] and hsv[i][j][2] <= mn[2]:
+    # #             mn = hsv[i][j]
+    # # print("min: ", mn)
+    # # print("max", mx)
+
+    # # Crear un filtro de color para extraer solo los píxeles azules dentro del rango de color especificado.
+    # mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    # cv2.imshow('mask', mask)
+    # # cv2.waitKey(1)
+    # # Encontrar el punto más azul dentro de la imagen filtrada.
+    # contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # if len(contours) > 0:
+    #     cnt = max(contours, key=cv2.contourArea)
+    #     (x, y), _ = cv2.minEnclosingCircle(cnt)
+
+    #     # Convertir las coordenadas de píxeles a coordenadas en la retícula.
+    #     rows = 15
+    #     cols = 17
+    #     x_grid = int(x / (img.shape[1] / cols)) + 1
+    #     y_grid = int(y / (img.shape[0] / rows)) + 1
+
+    #     # Mostrar el punto más azul y su coordenada en la retícula en la imagen original.
+    #     cv2.circle(img, (int(x), int(y)), 1, (255, 0, 0), -1)
+    #     cv2.putText(img, f"({x_grid}, {y_grid})", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    #     # cv2.imshow("Imagen", img)
+    #     # cv2.waitKey(1)
+
+
+    # Tomo punto fijo en el azul
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    lower_blue = np.array([112, 172, 244])
+    upper_blue = np.array([140, 255, 255])
+    # lower_blue = np.array([0, 0, 255])
+    # upper_blue = np.array([0, 0, 255])
+
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    # Aplicar un filtro de mediana para reducir el ruido en la imagen filtrada.
+    mask = cv2.medianBlur(mask, 5)
+    cv2.imshow('mask', mask)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    if len(contours) > 0:
+        contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
+        biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
+        # print("True")
+        M = cv2.moments(biggest_contour)
+        if M["m00"] == 0:
+            M["m00"] = 1
+        centroid_x = int(M["m10"] / M["m00"])
+        centroid_y = int(M["m01"] / M["m00"])
+        cv2.circle(img, (centroid_x, centroid_y), 5, (0, 0, 255), -1)
+        y = centroid_y
+        x = centroid_x
+        I = np.floor(y/wi) + 1
+        J = np.floor(x/hi) + 1
+        cv2.putText(img, f"({I}, {J})", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    # else:
+    #     print("No se ha encontrado ningún contorno en la imagen")
+
+    # print(["CON: ",I,J])
+
+    # cv2.imshow("Image", img)
+    # cv2.waitKey(1)
 
     # #Toma el rojo
     # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -118,8 +200,33 @@ while True:
     # print(mn)
     # print(mx)
     # break
-    if keyboard.is_pressed(end):
-        break
+    # if keyboard.is_pressed(end):
+    #     break
+
+    # # blanco 2
+    # img =  np.array(sct.grab(monitor=dim_board))
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # # Obtener el valor máximo de intensidad de píxeles en la imagen
+    # max_val = np.max(img)
+
+    # # Crear una imagen binaria que contenga solo los píxeles que tienen el valor máximo de intensidad
+    # binary_img = np.zeros_like(img)
+    # binary_img[img == max_val] = 255
+
+    # # Aplicar erosión y dilatación para eliminar el ruido
+    # kernel = np.ones((5, 5), np.uint8)
+    # binary_img = cv2.erode(binary_img, kernel, iterations=1)
+    # binary_img = cv2.dilate(binary_img, kernel, iterations=1)
+
+    # # Encontrar los contornos de los objetos en la imagen binaria
+    # contours, hierarchy = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # # Dibujar los contornos encontrados en la imagen original
+    # img_contours = cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
+
+    # # Mostrar la imagen
+    # cv2.imshow('Imagen con el blanco más claro resaltado', img_contours)
+    # cv2.waitKey(1)
 
     # # Aplica una umbralización para detectar los píxeles blancos
     # ret, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
@@ -128,27 +235,26 @@ while True:
     # # Encuentra los contornos de los objetos en la imagen
     # contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
-    whilte_point = cv2.findNonZero(mask)
-
-    if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
-    # if True:
-        # print(whilte_point[0])
-        # print(type(whilte_point[0]))
-        # clock.tick(6)
-        # print(len(whilte_point))
-        ind = int(len(whilte_point)//3)
-        x = whilte_point[ind][0][0]
-        y = whilte_point[ind][0][1]
-        print([x,y])
+    # whilte_point = cv2.findNonZero(mask)
+    # if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
+    # # if True:
+    #     # print(whilte_point[0])
+    #     # print(type(whilte_point[0]))
+    #     # clock.tick(6)
+    #     print(len(whilte_point))
+    #     ind = int(len(whilte_point)-1)
+    #     x = whilte_point[ind][0][0]
+    #     y = whilte_point[ind][0][1]
+    #     # print([x,y])
         
-        # Y = np.round(((x)-iniX)/disSquard + 1)
-        # X = np.round(((y)-iniY)/disSquard + 1)
-        # I = np.round(y/wi) + 1
-        # J = np.sround(x/hi) + 1
-        I = np.floor(y/wi) + 1
-        J = np.floor(x/hi) + 1
-        print(["CON: ",I,J])
-        cv2.circle(img, (x,y), 2, (255,0,255),-1)
+    #     # Y = np.round(((x)-iniX)/disSquard + 1)
+    #     # X = np.round(((y)-iniY)/disSquard + 1)
+    #     # I = np.round(y/wi) + 1
+    #     # J = np.sround(x/hi) + 1
+    #     I = np.floor(y/wi) + 1
+    #     J = np.floor(x/hi) + 1
+    #     print(["CON: ",I,J])
+    #     cv2.circle(img, (x,y), 2, (255,0,255),-1)
 
     # # Dibuja los contornos detectados en la imagen original
     # # cv2.drawContours(img, whilte_point, -1, (0, 0, 255), 2)
@@ -171,9 +277,9 @@ while True:
     # Muestra la imagen resultante
     cv2.imshow("Imagen con contornos", img)
     cv2.waitKey(1)
-    # if keyboard.is_pressed(end):
-    #     break
-    # cv2.destroyAllWindows()
+    if keyboard.is_pressed(end):
+        cv2.destroyAllWindows()
+        break
 
 # # Crea un objeto ORB
 # orb = cv2.ORB_create()
