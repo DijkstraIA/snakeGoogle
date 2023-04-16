@@ -10,8 +10,8 @@ def main():
     itr = 1
     while(True):
         print("-+-+-Inicio de iteracion: ", itr)
-        # agent.playVirtual() # Simulacion sin lectura de sensores
-        agent.play() # Simulacion con lectura de sensores
+        agent.playVirtual() # Simulacion sin lectura de sensores
+        # agent.play() # Simulacion con lectura de sensores
         agent.reset()
         itr += 1
         tiempo_actual = time.time()

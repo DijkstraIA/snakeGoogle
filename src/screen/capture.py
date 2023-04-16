@@ -115,7 +115,30 @@ class capture:
         except:
             print("Error encontrando el azul")
             return -1,-1
-    
+        
+    def scanBlue2(self):
+        I = -1
+        J = -1
+        try:
+            img =  np.array(sct.grab(monitor=self.dim_board))
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            
+            # Tomo el azul
+            lower_red = np.array([112, 172, 244])
+            upper_red = np.array([140, 255, 255])
+            mask = cv2.inRange(hsv, lower_red, upper_red)
+            
+            whilte_point = cv2.findNonZero(mask)
+            ind = int(len(whilte_point)//3)
+            x = whilte_point[ind][0][0]
+            y = whilte_point[ind][0][1]
+            I = np.floor(y/self.wi) + 1
+            J = np.floor(x/self.hi) + 1
+            return int(I),int(J)
+        except:
+            print("Error encontrando el azul")
+            return -1,-1
+
     def scanYellow(self):
         I = -1
         J = -1
