@@ -1,8 +1,8 @@
-import mss
-import pyautogui
-import cv2
-import numpy as np
 from time import sleep
+import numpy as np
+import pyautogui
+import mss
+import cv2
 
 sct = mss.mss()
 
@@ -16,82 +16,56 @@ class monitorObj:
 class capture:
     def __init__(self, board, wi, hi):
 
-        #Dimensiones del tablero
+        # Dimensiones del tablero
         self.dim_board = {
-                'left': board.left,
-                'top': board.top, 
-                'width': board.width,
-                'height': board.height
+            'left': board.left,
+            'top': board.top,
+            'width': board.width,
+            'height': board.height
         }
-        #Dimensiones de una casilla
+        # Dimensiones de una casilla
         self.wi = wi
         self.hi = hi
 
-    def scanRedV2(self):
-        I = -1
-        J = -1
-        while True:
-            sleep(0.01)
-            img =  np.array(sct.grab(monitor=self.dim_board))
-            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            lower_red = np.array([0, 100, 100])
-            upper_red = np.array([10, 255, 255])
-
-            mask = cv2.inRange(hsv, lower_red, upper_red)
-            mask = cv2.medianBlur(mask, 5)
-            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            if len(contours) > 0:
-                contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
-                biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
-                M = cv2.moments(biggest_contour)
-                if M["m00"] == 0:
-                    M["m00"] = 1
-                centroid_x = int(M["m10"] / M["m00"])
-                centroid_y = int(M["m01"] / M["m00"])
-
-                y = centroid_y
-                x = centroid_x
-                I = np.floor(y/self.wi) + 1
-                J = np.floor(x/self.hi) + 1
-                break
-        return int(I),int(J)
-    
     def scanRed(self):
         I = -1
         J = -1
         while True:
-            img =  np.array(sct.grab(monitor=self.dim_board))
+            img = np.array(sct.grab(monitor=self.dim_board))
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-            #Toma el rojo
+            # Toma el rojo
             lower_red = np.array([0, 100, 100])
             upper_red = np.array([10, 255, 255])
             mask = cv2.inRange(hsv, lower_red, upper_red)
-            
+
             whilte_point = cv2.findNonZero(mask)
             if whilte_point is not None and whilte_point[0] is not None and whilte_point[0][0] is not None:
                 ind = int(len(whilte_point)//3)
                 x = whilte_point[ind][0][0]
                 y = whilte_point[ind][0][1]
                 I = np.floor(y/self.wi) + 1
-                J = np.floor(x/self.hi) + 1              
+                J = np.floor(x/self.hi) + 1
                 break
-        return int(I),int(J)
+        return int(I), int(J)
 
-    def scanWhite(self):
+    def scanRedV2(self):
         I = -1
         J = -1
         while True:
-            img =  np.array(sct.grab(monitor=self.dim_board))
+            sleep(0.01)
+            img = np.array(sct.grab(monitor=self.dim_board))
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            lower_white = np.array([0, 0, 255])
-            upper_white = np.array([0, 0, 255])
+            lower_red = np.array([0, 100, 100])
+            upper_red = np.array([10, 255, 255])
 
-            mask = cv2.inRange(hsv, lower_white, upper_white)
+            mask = cv2.inRange(hsv, lower_red, upper_red)
             mask = cv2.medianBlur(mask, 5)
-            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(
+                mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             if len(contours) > 0:
-                contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
+                contour_sizes = [(cv2.contourArea(contour), contour)
+                                 for contour in contours]
                 biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
                 M = cv2.moments(biggest_contour)
                 if M["m00"] == 0:
@@ -103,110 +77,44 @@ class capture:
                 x = centroid_x
                 I = np.floor(y/self.wi) + 1
                 J = np.floor(x/self.hi) + 1
-                # self.printScreen2(img, mask, "White", I, J, x, y)
-                return int(I),int(J)
+                break
+        return int(I), int(J)
 
-    def scanBlueV2(self):
-        I = -1
-        J = -1
-        try:
-            while True:
-                img =  np.array(sct.grab(monitor=self.dim_board))
-                hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-                lower_blue = np.array([112, 172, 244])
-                upper_blue = np.array([140, 255, 255])
-
-                mask = cv2.inRange(hsv, lower_blue, upper_blue)
-                mask = cv2.medianBlur(mask, 5)
-                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                if len(contours) > 0:
-                    contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
-                    biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
-                    M = cv2.moments(biggest_contour)
-                    if M["m00"] == 0:
-                        M["m00"] = 1
-                    centroid_x = int(M["m10"] / M["m00"])
-                    centroid_y = int(M["m01"] / M["m00"])
-
-                    y = centroid_y
-                    x = centroid_x
-                    I = np.floor(y/self.wi) + 1
-                    J = np.floor(x/self.hi) + 1
-                    # self.printScreen2(img, mask, "blue", I, J, x, y)
-                    return int(I),int(J)
-        except:
-            print("Error encontrando el azul")
-            return -1,-1
-        
     def scanBlue(self):
         I = -1
         J = -1
+        itr = 0
+        color_objetivo = (78, 124, 246)
         try:
-            img =  np.array(sct.grab(monitor=self.dim_board))
-            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            
-            # Tomo el azul
-            lower_red = np.array([112, 172, 244])
-            upper_red = np.array([140, 255, 255])
-            mask = cv2.inRange(hsv, lower_red, upper_red)
-            
-            whilte_point = cv2.findNonZero(mask)
-            ind = int(len(whilte_point)//3)
-            x = whilte_point[ind][0][0]
-            y = whilte_point[ind][0][1]
-            I = np.floor(y/self.wi) + 1
-            J = np.floor(x/self.hi) + 1
-            return int(I),int(J)
-        except:
-            # print("Error encontrando el azul")
-            return -1,-1
+            while itr < 100:
+                itr+=1
+                img = np.array(sct.grab(monitor=self.dim_board))
 
-    def scanYellow(self):
-        I = -1
-        J = -1
-        try:
-            if True:
-                img =  np.array(sct.grab(monitor=self.dim_board))
-                hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-                lower_Yellow = np.array([20, 50, 50])
-                upper_Yellow = np.array([30, 255, 255])
+                # Convertir la imagen a espacio de color RGB
+                img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                # Encontrar los puntos donde existe el color objetivo
+                puntos = np.where(np.all(img_rgb == color_objetivo, axis=-1))
 
-                mask = cv2.inRange(hsv, lower_Yellow, upper_Yellow)
-                mask = cv2.medianBlur(mask, 5)
-                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                if len(contours) > 0:
-                    return True
-                    contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
-                    biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
-                    M = cv2.moments(biggest_contour)
-                    if M["m00"] == 0:
-                        M["m00"] = 1
-                    centroid_x = int(M["m10"] / M["m00"])
-                    centroid_y = int(M["m01"] / M["m00"])
+                # Seleccionar el punto más centrado del área conformada por los puntos
+                if puntos is not None and len(puntos[0]) > 0:
+                    # Obtener las coordenadas de los puntos encontrados
+                    coords = list(zip(puntos[1], puntos[0]))
 
-                    y = centroid_y
-                    x = centroid_x
+                    # Calcular el punto más centrado del área conformada por los puntos
+                    centro_x = np.mean([p[0] for p in coords])
+                    centro_y = np.mean([p[1] for p in coords])
+                    punto_central = (int(centro_x), int(centro_y))
+
+                    x, y = punto_central
+
                     I = np.floor(y/self.wi) + 1
                     J = np.floor(x/self.hi) + 1
-                    # self.printScreen2(img, mask, "yelow", I, J, x, y)
-                    return int(I),int(J)
-            return False
+
+                    return int(I), int(J)
+            return -1, -1
         except:
-            print("Error encontrando el azul")
-            return -1,-1
-
-    def mousePosition(self):
-        cnt = 0
-        while cnt < 100:
-            print(pyautogui.position())
-            cnt += 1
-
-    def printScreen2(self, img, mask, color, I, J, x, y):
-        cv2.circle(img, (x,y), 3, (255,0,255),-1)
-        cv2.putText(img, f"({I}, {J})", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.imshow(f"Imagen con color {color}", img)
-        # cv2.imshow(f"mask {color}", mask)
-        cv2.waitKey(1)
+            # print("Error encontrando el azul")
+            return -1, -1
 
     def printScreen(self):
         w, h = pyautogui.size()
@@ -216,10 +124,18 @@ class capture:
 
         yloc, xloc = np.where(self.result >= self.per)
         print(len(xloc))
-        for(x,y) in zip(xloc, yloc):
-            cv2.rectangle(self.board, (x,y), (x + self.wobject, y + self.hobject), (0,255,255), 2)
-                        
+        for (x, y) in zip(xloc, yloc):
+            cv2.rectangle(self.board, (x, y), (x + self.wobject,
+                          y + self.hobject), (0, 255, 255), 2)
+
         small = cv2.resize(self.board, (0, 0), fx=0.5, fy=0.5)
         cv2.imshow("Computer Vision", small)
-        
 
+    
+    def printScreen2(self, img, mask, color, I, J, x, y):
+        cv2.circle(img, (x, y), 3, (255, 0, 255), -1)
+        cv2.putText(img, f"({I}, {J})", (int(x), int(
+            y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.imshow(f"Imagen con color {color}", img)
+        cv2.imshow(f"mask {color}", mask)
+        cv2.waitKey(1)

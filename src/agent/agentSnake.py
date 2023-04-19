@@ -11,28 +11,24 @@ from model.piece import node
 from screen.capture import capture, monitorObj
 
 # [board, apple]
-left = [35, 527]
-top = [217, 505]
-width = [680, 20]
-height = [600, 20]
+left = [35]
+top = [257, 217]
+width = [680]
+height = [600]
 
 # Tamaño de la casilla en pixeles
 wi = 40
 hi = 40
 
-#Limite de desincronizacion
-lim = 2
-
-#Variables auxiliares
+# Variables auxiliares
 dx = [0, 1, 0, -1]
 dy = [1, 0, -1, 0]
 dword = ['right', 'down', 'left', 'up']
-# dword = ['d', 's', 'a', 'w']
 
 class IA:
     def __init__(self):
         # Variables de captura de pantalla
-        board = monitorObj(left[0], top[0], width[0], height[0])
+        board = monitorObj(left[0], top[1], width[0], height[0])
         self.captureImg = capture(board, wi, hi)
 
         # Instancia del algoritmo
@@ -43,7 +39,8 @@ class IA:
         self.score = 0
         self.rows = 15
         self.cols = 17
-        
+        self.endGame = False
+
         # Creacion de la reticula
         self.grid = [[node(i, j) for j in range(self.cols)]
                      for i in range(self.rows)]
@@ -64,7 +61,6 @@ class IA:
         self.food = self.grid[8-1][13-1]
         self.searchApple()
 
-
     def createGraph(self):
         for i in range(self.rows):
             for j in range(self.cols):
@@ -78,33 +74,43 @@ class IA:
 
     def play(self):
         path = []
-        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols) #[0, 0, 0, 0, 0, 0, 0, 0]
-        try:            
-            while 1: #Time max 0.2 a 0.3 por iteracion
-                self.searchHead()  ## Sensores
-                
+        dir_array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        try:
+            while 1:
+                self.searchHead() ## Sensores
+
                 # Si la cabeza real y la virtual son iguales se calcula el siguiente movimiento
                 if (abs(self.headV1.x - self.headR1.x) == 0 and abs(self.headV1.y - self.headR1.y) == 0):
                     direction = dir_array.pop(-1)
                     path = self.move(self.headV1, direction, path)
                     dir = path.pop(0)
-                    
+
                     self.moveSnake(dir)  ## Actuadores
-                    
+
                     if self.headV1.x == self.food.x and self.headV1.y == self.food.y:
                         self.score += 1
                         self.searchApple()  ## Sensores
-                        
-                        ## Algoritmos ## Funcion interna de calculo
-                        dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
-                        # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
 
+                        ## Funcion interna de calculo
+                        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.asterisk(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                        
+                        if len(dir_array) == 0:
+                            self.food = self.snake[0]
+                            dir_array = self.calculate.asterisk(self.snake[0], self.snake, self.rows, self.cols)
+                            if len(dir_array) == 0:
+                                dir_array = self.calculate.dfsAll(self.snake[0], self.snake, self.rows, self.cols)
+                                if len(dir_array) == 0:
+                                    self.endGame = True
+                                else:
+                                    self.score -= 1
+                            else:
+                                self.score -= 1
                     else:
                         self.snake.pop(0)
-                        
-                if keyboard.is_pressed("q") or self.endGame():
+                # self.printBoard()  # Funcion interna de impresión
+                if keyboard.is_pressed("q") or self.endGame:
                     break
             print(["INFO:", "score:", self.score])
         except Exception as e:
@@ -112,14 +118,14 @@ class IA:
 
     def move(self, head, direction, path):
         path.append(dword[direction])
-        self.snake.append(self.grid[head.x+dx[direction]][head.y + dy[direction]])
+        self.snake.append(
+            self.grid[head.x+dx[direction]][head.y + dy[direction]])
         self.headV1 = self.snake[-1]
         self.headV2 = self.snake[-2]
         return path
 
     def moveSnake(self, dir):
         keyboard.press(dir)
-        # pyautogui.press(dir)
 
     def searchApple(self):
         cntApple = 0
@@ -132,44 +138,39 @@ class IA:
                 break
 
     def searchHead(self):
-        I, J = self.captureImg.scanBlueV2()
+        I, J = self.captureImg.scanBlue()
         self.headR1 = self.grid[I-1][J-1]
 
-        # I, J = self.captureImg.scanBlue()
-        # I, J = self.captureImg.scanWhite()
-        # self.headR2 = self.grid[I-1][J-1]
-    
-    def endGame(self):
-        return self.captureImg.scanYellow()
-    
     def reset(self):
-        # Creacion de la serpiente
         pyautogui.press("enter")
-        # keyboard.press("enter")
+        
+        # Variables de juego
+        self.score = 0
+        self.endGame = False
 
         # Creacion de la serpiente
         self.lenSanke = 4
         headSnake = self.grid[8][5]
-        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke) # La cabeza es el ultimo elemento
+        self.snake = self.createSnake(headSnake.x, headSnake.y, self.lenSanke)
         self.headV1 = self.snake[-1]
         self.headV2 = self.snake[-2]
         self.headR1 = self.snake[-1]
         self.headR2 = self.snake[-2]
-        self.score = 0
 
         # Posicion inicial de la manzana
         self.food = self.grid[8-1][13-1]
         self.searchApple()
 
     def go(self):
-        sleep(1)
+        # self.printBoard()  # Funcion interna de impresión
+        sleep(0.1)
         itr = 1
-        tiempo_limite = 65  # segundos
+        tiempo_limite = 60+5  # segundos
         tiempo_inicio = time2.time()
-        while(True):
+        while (True):
             print("-+-+-Inicio de iteracion: ", itr)
-            self.playVirtual() # Simulacion sin lectura de sensores
-            # self.play() # Simulacion con lectura de sensores
+            # self.playVirtual() # Simulacion sin lectura de sensores
+            self.play()  # Simulacion con lectura de sensores
             self.reset()
             itr += 1
             sleep(0.5)
@@ -178,7 +179,7 @@ class IA:
                 # Si ha pasado un minuto, detener el programa
                 sys.exit()
 
-### Otra funciones de prueba !!!
+# Otra funciones de prueba
     def times(self, opc, tiempo_inicio, tiempo_limite, name):
         if opc == 0:
             tiempo_inicio = time2.time()
@@ -192,7 +193,7 @@ class IA:
                 print(f"Tiempo de ejecucion excedido {name}")
                 sys.exit()
             return int(0)
-        
+
     def printBoard(self):
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
@@ -226,7 +227,7 @@ class IA:
         self.food.show(GREEN, screen, wr, hr)
 
         display.flip()
-        
+
     def playVirtual(self):
         sleep(1)
         clock = time.Clock()
@@ -240,22 +241,21 @@ class IA:
                     direction = dir_array.pop(-1)
                     path = self.move(self.headV1, direction, path)
                     _ = path.pop(0)
-                   
+
                     if self.headV1.x == self.food.x and self.headV1.y == self.food.y:
                         self.score += 1
-                        self.searchAppleVirtual()  ## Sensores
+                        self.searchAppleVirtual()  # Sensores
 
-                        ## Algoritmos ## Funcion interna de calculo
-                        dir_array = self.calculate.asterisk2(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.asterisk1(self.food, self.snake, self.grid, self.rows, self.cols)
+                        # Algoritmos ## Funcion interna de calculo
+                        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        # dir_array = self.calculate.asterisk(self.food, self.snake, self.rows, self.cols)
                         # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
 
                     else:
                         self.snake.pop(0)
 
                 clock.tick(6)
-                self.printBoard() ## Funcion interna de impresion
+                self.printBoard()  # Funcion interna de impresión
                 print(["INFO:", "score:", self.score])
                 if keyboard.is_pressed("q"):
                     break
@@ -272,7 +272,7 @@ class IA:
             cntApple += 1
             if not (self.food in self.snake):
                 break
-    
+
     def searchHeadVirtual(self):
         I, J = self.snake[-1].x+1, self.snake[-1].y+1
         self.headR1 = self.grid[I-1][J-1]
