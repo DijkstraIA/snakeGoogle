@@ -172,6 +172,7 @@ class IA:
             # self.playVirtual() # Simulacion sin lectura de sensores
             self.play()  # Simulacion con lectura de sensores
             self.reset()
+            break
             itr += 1
             sleep(0.5)
             tiempo_actual = time2.time()
