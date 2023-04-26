@@ -30,7 +30,9 @@ class capture:
     def scanRed(self):
         I = -1
         J = -1
-        while True:
+        itr = 0
+        while itr < 100:
+            itr = itr + 1
             img = np.array(sct.grab(monitor=self.dim_board))
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -52,7 +54,9 @@ class capture:
     def scanRedV2(self):
         I = -1
         J = -1
-        while True:
+        itr = 0
+        while itr < 100:
+            itr = itr + 1
             sleep(0.01)
             img = np.array(sct.grab(monitor=self.dim_board))
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

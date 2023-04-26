@@ -66,7 +66,7 @@ class algorithms:
             for neighbor in current.neighbors:
                 w = self.f(current, neighbor, food1)
                 if distance[current.x][current.y] + w < distance[neighbor.x][neighbor.y]:
-                    distance[neighbor.x][neighbor.y] = distance[current.x][current.y] + w
+                    distance[neighbor.x][neighbor.y] = w
                     heapq.heappush(cola_prioridad, (distance[neighbor.x][neighbor.y], neighbor))
                     neighbor.camefrom = current
             if current == food1:

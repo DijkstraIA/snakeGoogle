@@ -92,9 +92,12 @@ class IA:
                         self.searchApple()  ## Sensores
 
                         ## Funcion interna de calculo
-                        dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.asterisk(self.food, self.snake, self.rows, self.cols)
-                        # dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
+                        if self.score < 20:
+                            dir_array = self.calculate.bfs(self.food, self.snake, self.rows, self.cols)
+                        elif self.score < 50:
+                            dir_array = self.calculate.asterisk(self.food, self.snake, self.rows, self.cols)
+                        else:
+                            dir_array = self.calculate.dfsAll(self.food, self.snake, self.rows, self.cols)
                         
                         if len(dir_array) == 0:
                             self.food = self.snake[0]
